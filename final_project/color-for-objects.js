@@ -2,25 +2,31 @@ var red = [
     1, 0, 0,
 ];
 var blue = [
-        0,0,1,
+    0, 0, 1,
 ];
-var green=[
-    0,1,0,
+var green = [
+    0.137255, 0.556863, 0.137255,
 ];
-var grey=[
-    1,0,1,
+var brown = [
+    0.35, 0.16, 0.14,
 ];
-var black=[
-    1,1,1,
+var grey = [
+    0.329412, 0.329412, 0.329412,
+];
+var yellow = [
+    1, 1, 0,
+];
+var black = [
+    0, 0, 0,
 ];
 
 
 function bindColor(color, verNum) {
     ///bind color buffer
     var colors = [];
-    for (var i = 0; i < verNum; i++){
-        for(var j = 0 ; j < 3; j++){
-            colors.push( color[j] );
+    for (var i = 0; i < verNum; i++) {
+        for (var j = 0; j < 3; j++) {
+            colors.push(color[j]);
         }
     }
     color_buffer = gl.createBuffer();

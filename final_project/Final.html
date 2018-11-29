@@ -3,9 +3,9 @@
 <html>
 
 <head>
-<title>Final Assignment</title>
-<style>
-    body {
+    <title>Final Assignment</title>
+    <style>
+        body {
         background-color: #EEEEEE;
     }
     label {
@@ -13,10 +13,10 @@
     }
 </style>
 
-<!-- vertex shader -->
-<script type="x-shader/x-vertex" id="vshader-source">
+    <!-- vertex shader -->
+    <script type="x-shader/x-vertex" id="vshader-source">
 
-    // TODO: Your code goes here.
+        // TODO: Your code goes here.
     // Vertex Shader computes the coordinates for all the vertices which are being drawn.
     // Fragment Shader computes the color for those vertices.
     // You can also pass variables from the vertex shader to the fragment shader.
@@ -54,21 +54,19 @@
             v_color = vec4(0,0,0,1);
         }
         else {
-            //vec3 color = 0.8*dot(L,N) * diffuseColor.rgb;  // 0.8 is diffuse intensity of light
-            // color = 0.8*dot(L,N) * diffuseColor.rgb;  // 0.8 is diffuse intensity of light
-            //
-            // if (dot(R,V) > 0.0) {
-            //     color += 0.4*pow(dot(R,V),specularExponent) * specularColor; // 0.4 is specular intensity of light
-            // }
-            // v_color = vec4(color, diffuseColor.a);
-            v_color = vec4( color, 1.);
+            vec3 dcolor = 0.8*dot(L,N) * diffuseColor.rgb;  // 0.8 is diffuse intensity of light
+            if (dot(R,V) > 0.0) {
+                dcolor += 0.4*pow(dot(R,V),specularExponent) * specularColor; // 0.4 is specular intensity of light
+            }
+            dcolor = color * dcolor;
+            v_color = vec4(dcolor, diffuseColor.a);
         }
     }
 </script>
 
-<!-- fragment shader -->
-<script type="x-shader/x-fragment" id="fshader-source">
-    #ifdef GL_FRAGMENT_PRECISION_HIGH
+    <!-- fragment shader -->
+    <script type="x-shader/x-fragment" id="fshader-source">
+        #ifdef GL_FRAGMENT_PRECISION_HIGH
        precision highp float;
     #else
        precision mediump float;
@@ -81,25 +79,27 @@
 
 </script>
 
-<script src="gl-matrix-min.js"></script>
-<script type="text/javascript" src="webgl-utils.js"></script>
-<script src="models.js"></script>
-<script src="Final.js"></script>
-<script src="trackball-rotator.js"></script>
-<script src="rendering-car.js"></script>
-<script src="rendering-ground.js"></script>
-<script src="draw-tree.js"></script>
-<script src="draw-models.js"></script>
-<script src="draw-pole.js"></script>
-<script src="draw-moon.js"></script>
-<script src="color-for-objects.js"></script>
+    <script src="gl-matrix-min.js"></script>
+    <script type="text/javascript" src="webgl-utils.js"></script>
+    <script src="models.js"></script>
+    <script src="Final.js"></script>
+    <script src="trackball-rotator.js"></script>
+    <script src="rendering-car.js"></script>
+    <script src="rendering-ground.js"></script>
+    <script src="draw-tree.js"></script>
+    <script src="draw-models.js"></script>
+    <script src="draw-pole.js"></script>
+    <script src="draw-moon.js"></script>
+    <script src="color-for-objects.js"></script>
 
 </head>
+
 <body onload="startup()">
-Name: joowon suh<br/>
-Student ID: 44414081 X0992979<br/>
-<div id="canvas-holder">
-   <canvas width=700 height=700 id="myGLCanvas" style="background-color:red"></canvas>
-</div>
+    Name: joowon suh<br />
+    Student ID: 44414081 X0992979<br />
+    <div id="canvas-holder">
+        <canvas width=700 height=700 id="myGLCanvas" style="background-color:red"></canvas>
+    </div>
 </body>
+
 </html>

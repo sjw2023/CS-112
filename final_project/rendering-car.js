@@ -10,7 +10,7 @@ function wheel(mat) {
 function drawCarBody(mat, location, size) {
 
     drawCube(mat, red, 1, null, null, null, null, null, null, null, [3, 0.5, 1.5]);
-    drawCube(mat, red, [0, 1, 0], null, null, null, null, null, null, [1.2, 0.5, 1.5]);
+    drawCube(mat, red, 1, [0, 1, 0], null, null, null, null, null, null, [1.2, 0.5, 1.5]);
 }
 
 function drawWheel(mat, trans, scale, degx, degy, degz, x, y, z) {

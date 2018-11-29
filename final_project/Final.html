@@ -34,6 +34,7 @@
     uniform vec4 diffuseColor;
     uniform vec3 specularColor;
     uniform float specularExponent;
+    uniform float isMoon;
     varying vec4 v_color;
     void main() {
         vec4 coords = vec4(a_coords,1.0);
@@ -59,7 +60,12 @@
                 dcolor += 0.4*pow(dot(R,V),specularExponent) * specularColor; // 0.4 is specular intensity of light
             }
             dcolor = color * dcolor;
-            v_color = vec4(dcolor, diffuseColor.a);
+            if( isMoon == 1. ){
+                v_color = vec4(color, 1.);
+            }
+            else{
+                v_color = vec4(dcolor, diffuseColor.a);
+            }
         }
     }
 </script>

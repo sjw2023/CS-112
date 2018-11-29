@@ -29,9 +29,7 @@ var u_normalMatrix;
 var u_ambient;
 var u_diffuse;
 var u_specular;
-
-var colors = [0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, ];
-
+var u_isMoon;
 
 var rotator; // A TrackballRotator to implement rotation by mouse.
 
@@ -203,6 +201,7 @@ function initGL() {
     u_diffuseColor = gl.getUniformLocation(prog, "diffuseColor");
     u_specularColor = gl.getUniformLocation(prog, "specularColor");
     u_specularExponent = gl.getUniformLocation(prog, "specularExponent");
+    u_isMoon = gl.getUniformLocation(prog, "isMoon");
 
 
     // u_ambient = gl.getUniformLocation(prog, "ambient");
@@ -224,7 +223,7 @@ function initGL() {
     gl.uniform3f(u_specularColor, 0.5, 0.5, 0.5);
     gl.uniform4f(u_diffuseColor, 1, 1, 1, 1);
     gl.uniform1f(u_specularExponent, 10);
-    gl.uniform4f(u_lightPosition, 0, 0, 0, 1);
+    //gl.uniform4f(u_lightPosition, 0, 0, 0, 1);
 }
 
 
@@ -274,6 +273,7 @@ function draw() {
     //document.onkeydown = handleKeyDown;
 
     // setup pipeline to be able to render scene
+    drawMoon(modelview, 1, u_lightPosition, [0,0,0,1], [-5, 5, -5], null, null, null, null, null, null, null);
     drawCar(modelview, [0, -0.5, 7], [0.5, 0.5, 0.5]);
     drawGround(modelview, [0, -0.4, 0], [2, 2, 2]);
     drawTree(modelview, [-1.5, -0.3, 2], null, null, null, null, null, null, null);
@@ -287,7 +287,6 @@ function draw() {
     drawTree(modelview, [5.6, -0.3, 0], null, null, null, null, null, null, null);
     drawTree(modelview, [5.4, -0.3, 1], null, null, null, null, null, null, null);
     drawPole(modelview, null, null, null, null, null, null, null, null);
-    drawMoon(modelview, [-5, 5, -5], null, null, null, null, null, null, null);
 }
 /**
  * Function for doing the initialization work of the program and kicking off

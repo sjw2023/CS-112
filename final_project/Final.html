@@ -24,6 +24,7 @@
     // shaders. Write the code in both the shaders appropriately.
     attribute vec3 a_coords;
     attribute vec3 a_normal;
+    attribute vec3 color;
 
     uniform mat4 modelview;
     uniform mat4 projection;
@@ -53,11 +54,14 @@
             v_color = vec4(0,0,0,1);
         }
         else {
-            vec3 color = 0.8*dot(L,N) * diffuseColor.rgb;  // 0.8 is diffuse intensity of light
-            if (dot(R,V) > 0.0) {
-                color += 0.4*pow(dot(R,V),specularExponent) * specularColor; // 0.4 is specular intensity of light
-            }
-            v_color = vec4(color, diffuseColor.a);
+            //vec3 color = 0.8*dot(L,N) * diffuseColor.rgb;  // 0.8 is diffuse intensity of light
+            // color = 0.8*dot(L,N) * diffuseColor.rgb;  // 0.8 is diffuse intensity of light
+            //
+            // if (dot(R,V) > 0.0) {
+            //     color += 0.4*pow(dot(R,V),specularExponent) * specularColor; // 0.4 is specular intensity of light
+            // }
+            // v_color = vec4(color, diffuseColor.a);
+            v_color = vec4( color, 1.);
         }
     }
 </script>
@@ -87,6 +91,8 @@
 <script src="draw-tree.js"></script>
 <script src="draw-models.js"></script>
 <script src="draw-pole.js"></script>
+<script src="draw-moon.js"></script>
+<script src="color-for-objects.js"></script>
 
 </head>
 <body onload="startup()">

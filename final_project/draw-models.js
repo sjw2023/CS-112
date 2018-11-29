@@ -1,4 +1,4 @@
-function drawCube( mat, side, trans, degx, degy, degz, x, y, z, scale  ){
+function drawCube( mat, color, side, trans, degx, degy, degz, x, y, z, scale  ){
 	var object = cube( side );
 	installModel(object);
 	if ( degx != null || degy != null || degz != null ){
@@ -21,6 +21,7 @@ function drawCube( mat, side, trans, degx, degy, degz, x, y, z, scale  ){
 	if ( trans != null ){
 		mat4.translate( mat, mat, trans );
 	}
+	bindColor(color, object.vertexPositions.length );
 	update(object);
 	if ( trans != null ){
 		mat4.translate( mat, mat, [ -trans[0], -trans[1], -trans[2]] );
@@ -44,7 +45,7 @@ function drawCube( mat, side, trans, degx, degy, degz, x, y, z, scale  ){
 	}
 }
 
-function drawTorus( mat, inner, outer, slices, stacks, trans, degx, degy, degz, x, y, z, scale ){
+function drawTorus( mat, color, inner, outer, slices, stacks, trans, degx, degy, degz, x, y, z, scale ){
 	var object = uvTorus( inner, outer, slices, stacks );
 	installModel(object);
 	if ( degx != null || degy != null || degz != null ){
@@ -67,6 +68,7 @@ function drawTorus( mat, inner, outer, slices, stacks, trans, degx, degy, degz, 
 	if ( trans != null ){
 		mat4.translate( mat, mat, trans );
 	}
+	bindColor(color, object.vertexPositions.length );
 	update(object);
 	if ( trans != null ){
 		mat4.translate( mat, mat, [ -trans[0], -trans[1], -trans[2]] );
@@ -95,7 +97,7 @@ function drawTorus( mat, inner, outer, slices, stacks, trans, degx, degy, degz, 
 
 
 
-function drawRing( mat, inner, outer, slices, trans, degx, degy, degz, x, y, z, scale ){
+function drawRing( mat, color,inner, outer, slices, trans, degx, degy, degz, x, y, z, scale ){
 	var object = ring( inner, outer, slices );
 	installModel(object);
 	if ( degx != null || degy != null || degz != null ){
@@ -118,6 +120,7 @@ function drawRing( mat, inner, outer, slices, trans, degx, degy, degz, x, y, z, 
 	if ( trans != null ){
 		mat4.translate( mat, mat, trans );
 	}
+	bindColor(color, object.vertexPositions.length );
 	update(object);
 	if ( trans != null ){
 		mat4.translate( mat, mat, [ -trans[0], -trans[1], -trans[2]] );
@@ -143,7 +146,7 @@ function drawRing( mat, inner, outer, slices, trans, degx, degy, degz, x, y, z, 
 }
 
 
-function drawCylinder( mat, radius, height, slice, noTop, noBottom, trans, degx, degy, degz, x, y, z, scale ){
+function drawCylinder( mat, color,radius, height, slice, noTop, noBottom, trans, degx, degy, degz, x, y, z, scale ){
 	var object = uvCylinder(radius,height,slice,noTop, noBottom);
 	installModel(object);
 	if ( degx != null || degy != null || degz != null ){
@@ -166,6 +169,7 @@ function drawCylinder( mat, radius, height, slice, noTop, noBottom, trans, degx,
 	if ( trans != null ){
 		mat4.translate( mat, mat, trans );
 	}
+	bindColor(color, object.vertexPositions.length );
 	update(object);
 	if ( trans != null ){
 		mat4.translate( mat, mat, [ -trans[0], -trans[1], -trans[2]] );
@@ -190,7 +194,7 @@ function drawCylinder( mat, radius, height, slice, noTop, noBottom, trans, degx,
 	}
 }
 
-function drawCone( mat, radius, height, slice, noBottom, trans, degx, degy, degz, x, y, z, scale  ){
+function drawCone( mat, color,radius, height, slice, noBottom, trans, degx, degy, degz, x, y, z, scale  ){
 	var object = uvCone(radius,height,slice,noBottom);
 	installModel(object);
 	if ( degx != null || degy != null || degz != null ){
@@ -213,6 +217,7 @@ function drawCone( mat, radius, height, slice, noBottom, trans, degx, degy, degz
 	if ( trans != null ){
 		mat4.translate( mat, mat, trans );
 	}
+	bindColor(color, object.vertexPositions.length );
 	update(object);
 	if ( trans != null ){
 		mat4.translate( mat, mat, [ -trans[0], -trans[1], -trans[2]] );
@@ -236,7 +241,7 @@ function drawCone( mat, radius, height, slice, noBottom, trans, degx, degy, degz
 				}
 	}
 }
-function drawSphere( mat, radius, slices, stacks, trans, degx, degy, degz, x, y, z, scale  ){
+function drawSphere( mat, color, radius, slices, stacks, trans, degx, degy, degz, x, y, z, scale  ){
 	var object = uvSphere(radius,slices,stacks);
 	installModel(object);
 	if ( degx != null || degy != null || degz != null ){
@@ -259,6 +264,7 @@ function drawSphere( mat, radius, slices, stacks, trans, degx, degy, degz, x, y,
 	if ( trans != null ){
 		mat4.translate( mat, mat, trans );
 	}
+	bindColor(color, object.vertexPositions.length );
 	update(object);
 	if ( trans != null ){
 		mat4.translate( mat, mat, [ -trans[0], -trans[1], -trans[2]] );

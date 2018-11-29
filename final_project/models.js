@@ -6,7 +6,7 @@
  * coordinates for each vertex, plus a list of indicies
  * for the element array buffer.  The return value
  * of each function is an object, model, with properties:
- * 
+ *
  *    model.vertexPositions -- the vertex coordinates;
  *    model.vertexNormals -- the normal vectors;
  *    model.vertexTextureCoords -- the texture coordinates;
@@ -16,7 +16,7 @@
  * model.indicesis of type Uint16Array.
  */
 
- 
+
  /**
   * Create a model of a cube, centered at the origin.
   * @side the length of a side of the cube.  If not given, the value will be 1.
@@ -49,7 +49,8 @@ function cube(side) {
       vertexPositions: new Float32Array(coords),
       vertexNormals: new Float32Array(normals),
       vertexTextureCoords: new Float32Array(texCoords),
-      indices: new Uint16Array(indices)
+      indices: new Uint16Array(indices),
+      //num: new Uint16Array( vertexCount )
    }
 }
 
@@ -145,7 +146,7 @@ function ring(innerRadius, outerRadius, slices) {
  * with the north pole on the positive z-axis and the center at (0,0,0).
  * @param radius the radius of the sphere, default 0.5 if not specified.
  * @param slices the number of lines of longitude, default 32
- * @param stacks the number of lines of latitude plus 1, default 16.  (This 
+ * @param stacks the number of lines of latitude plus 1, default 16.  (This
  *    is the number of vertical slices, bounded by lines of latitude, the
  *    north pole and the south pole.)
  */
@@ -178,7 +179,7 @@ function uvSphere(radius, slices, stacks) {
          normals[indexV++] = z;
          texCoords[indexT++] = j/slices;
          texCoords[indexT++] = i/stacks;
-      } 
+      }
    }
    var k = 0;
    for (j = 0; j < stacks; j++) {
@@ -249,7 +250,7 @@ function uvTorus(outerRadius, innerRadius, slices, stacks) {
          normals[indexV++] = sin;
          texCoords[indexT++] = i/slices;
          texCoords[indexT++] = j/stacks;
-      } 
+      }
    }
    var k = 0;
    for (j = 0; j < stacks; j++) {
@@ -297,7 +298,7 @@ function uvCylinder(radius, height, slices, noTop, noBottom) {
    if (!noTop)
       triangleCount += slices;
    if (!noBottom)
-      triangleCount += slices; 
+      triangleCount += slices;
    var vertices = new Float32Array(vertexCount*3);
    var normals = new Float32Array(vertexCount*3);
    var texCoords = new Float32Array(vertexCount*2);
@@ -345,7 +346,7 @@ function uvCylinder(radius, height, slices, noTop, noBottom) {
       vertices[kv] = -height/2;
       normals[kv++] = -1;
       texCoords[kt++] = 0.5;
-      texCoords[kt++] = 0.5; 
+      texCoords[kt++] = 0.5;
       for (i = 0; i <= slices; i++) {
          u = 2*Math.PI - i*du;
          var c = Math.cos(u);
@@ -374,7 +375,7 @@ function uvCylinder(radius, height, slices, noTop, noBottom) {
       vertices[kv] = height/2;
       normals[kv++] = 1;
       texCoords[kt++] = 0.5;
-      texCoords[kt++] = 0.5; 
+      texCoords[kt++] = 0.5;
       for (i = 0; i <= slices; i++) {
          u = i*du;
          var c = Math.cos(u);
@@ -430,7 +431,7 @@ function uvCone(radius, height, slices, noBottom) {
    var indices = new Uint16Array(triangleCount*3);
    var normallength = Math.sqrt(height*height+radius*radius);
    var n1 = height/normallength;
-   var n2 = radius/normallength; 
+   var n2 = radius/normallength;
    var du = 2*Math.PI / slices;
    var kv = 0;
    var kt = 0;
@@ -494,7 +495,7 @@ function uvCone(radius, height, slices, noBottom) {
       vertices[kv] = -height/2;
       normals[kv++] = -1;
       texCoords[kt++] = 0.5;
-      texCoords[kt++] = 0.5; 
+      texCoords[kt++] = 0.5;
       for (i = 0; i <= slices; i++) {
          u = 2*Math.PI - i*du;
          var c = Math.cos(u);
@@ -513,12 +514,11 @@ function uvCone(radius, height, slices, noBottom) {
          indices[k++] = startIndex + i + 1;
          indices[k++] = startIndex + i + 2;
       }
-   } 
+   }
    return {
        vertexPositions: vertices,
        vertexNormals: normals,
        vertexTextureCoords: texCoords,
        indices: indices
-   };   
+   };
 }
-

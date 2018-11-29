@@ -6,10 +6,14 @@
 */
 var a_coords_loc;       // Location of the a_coords attribute variable in the shader program.
 var a_normal_loc;       // Location of a_normal attribute.
+var a_color_loc;
 
+var a_color_buffer;
 var a_coords_buffer;    // Buffer for a_coords.
 var a_normal_buffer;    // Buffer for a_normal.
 var index_buffer;       // Buffer for indices.
+
+var shader;
 
 var u_diffuseColor;     // Locations of uniform variables in the shader program
 var u_specularColor;
@@ -18,18 +22,11 @@ var u_lightPosition;
 var u_modelview;
 var u_projection;
 var u_normalMatrix;
-var u_ambient
-var u_diffuse
-var u_specular
+var u_ambient;
+var u_diffuse;
+var u_specular;
 
-var objects = [
-	cube(1),
-	ring( 1, 1, 1),
-	uvSphere( 1, 1, 1),
-	uvTorus(1,1,1,1),
- 	uvCylinder(1,1,1,1,1),
-];
-// var object;
+var colors = [0,0,1, 1,0,0, 0,1,0, 1,0,1,];
 
 
 var rotator;                       // A TrackballRotator to implement rotation by mouse.
@@ -300,15 +297,6 @@ function setupShaders() {
 	shaderProgram.uniformSpecularLightColorLoc = gl.getUniformLocation(shaderProgram, "uSpecularLightColor");
 }
 
-/**
-* Function to setup the draw buffers for the teapot and skybox
-* @return None
-*/
-function setupBuffers(){
-    setupSkybox();
-	readTextFile("teapot_0.obj", setupTeapotBuffers);
-}
-
 function installModel(modelData) {
      gl.bindBuffer(gl.ARRAY_BUFFER, a_coords_buffer);
      gl.bufferData(gl.ARRAY_BUFFER, modelData.vertexPositions, gl.STATIC_DRAW);
@@ -434,7 +422,9 @@ function initGL() {
     u_diffuseColor =  gl.getUniformLocation(prog, "diffuseColor");
     u_specularColor =  gl.getUniformLocation(prog, "specularColor");
     u_specularExponent = gl.getUniformLocation(prog, "specularExponent");
-    // u_ambient = gl.getUniformLocation(prog, "ambient");
+
+
+	// u_ambient = gl.getUniformLocation(prog, "ambient");
     // u_diffuse = gl.getUniformLocation(prog, "diffuse");
     // u_specular = gl.getUniformLocation(prog, "specular");
 
@@ -442,6 +432,9 @@ function initGL() {
     a_normal_buffer = gl.createBuffer();
     index_buffer = gl.createBuffer();
     gl.enable(gl.DEPTH_TEST);
+
+
+	shader = prog;
 
     // gl.uniform1i(u_ambient, 0);
     // gl.uniform1i(u_diffuse, 0);
@@ -488,15 +481,13 @@ function isPowerOf2(value) {
 }
 
 function draw(){
-	gl.clearColor(0.15,0.15,0.3,1);
+
+	gl.clearColor(0.5,0.5,0.5,0.9);//back ground color
+	gl.enable(gl.DEPTH_TEST);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-	mat4.perspective(projection, Math.PI/5,1,10,30);
-
+	mat4.perspective(projection, Math.PI/5,1,10,40);
 	modelview = rotator.getViewMatrix();
-	// gl = createGLContext(canvas);
-	// gl.clearColor(0.0, 0.0, 0.0, 1.0);
-	// gl.enable(gl.DEPTH_TEST);
+
 
 	// set up event listener for keystrokes
 	//document.onkeydown = handleKeyDown;
@@ -504,8 +495,18 @@ function draw(){
 	// setup pipeline to be able to render scene
 	drawCar( modelview, [0,-0.5,7], [0.5,0.5,0.5]);
 	drawGround( modelview, [ 0,-0.4,0], [2,2,2] );
-	drawTree( modelview, null, null, null, null, null, null, null, null );
-	drawPole(modelview, null, null, null, null, null, null, null, null);
+	drawTree( modelview, [-1.5,-0.3,2], null, null, null, null, null, null, null );
+	drawTree( modelview, [-1,-0.3,-1], null, null, null, null, null, null, null );
+	drawTree( modelview, [1,-0.3,0], null, null, null, null, null, null, null );
+	drawTree( modelview, [-2.5,-0.3,-5], null, null, null, null, null, null, null );
+	drawTree( modelview, [-0.8,-0.3,5.5], null, null, null, null, null, null, null );
+	drawTree( modelview, [1,-0.3,-5.5], null, null, null, null, null, null, null );
+	drawTree( modelview, [2,-0.3,-5], null, null, null, null, null, null, null );
+	drawTree( modelview, [5.5,-0.3,-1], null, null, null, null, null, null, null );
+	drawTree( modelview, [5.6,-0.3,0], null, null, null, null, null, null, null );
+	drawTree( modelview, [5.4,-0.3,1], null, null, null, null, null, null, null );
+	drawPole( modelview, null, null, null, null, null, null, null, null);
+	drawMoon( modelview, [-5,5,-5], null, null, null, null, null, null, null);
 }
 /**
 * Function for doing the initialization work of the program and kicking off
@@ -534,7 +535,7 @@ function startup() {
 					"<p>Sorry, could not initialize the WebGL graphics context:" + e + "</p>";
 			return;
 	}
-	rotator = new TrackballRotator(canvas, draw, 20, [0,10,10], [0,1,0]);
+	rotator = new TrackballRotator(canvas, draw, 30, [0,10,10], [0,1,0]);
 	draw();
 	//document.getElementById("my_gl").onchange = draw;
 

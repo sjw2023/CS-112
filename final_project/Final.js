@@ -4,8 +4,8 @@
  * model. This file is where all the drawing functions are called from. This file is dependent upon
  * user_commands.js, readText.js, skybox.js, render_teapot.js, teapot_0, gl-matrix-min.js, and webgl-utils.js.
  */
- var gl;
- var canvas;
+var gl;
+var canvas;
 
 
 var a_coords_loc; // Location of the a_coords attribute variable in the shader program.
@@ -17,7 +17,7 @@ var a_coords_buffer; // Buffer for a_coords.
 var a_normal_buffer; // Buffer for a_normal.
 var index_buffer; // Buffer for indices.
 
-var shader;// shader program
+var shader; // shader program
 
 var u_diffuseColor; // Locations of uniform variables in the shader program
 var u_specularColor;
@@ -30,6 +30,8 @@ var u_ambient;
 var u_diffuse;
 var u_specular;
 var u_isMoon;
+
+var moonDeg = degToRad(0);
 
 var rotator; // A TrackballRotator to implement rotation by mouse.
 
@@ -61,8 +63,9 @@ var globalQuat = quat.create();
 
 // For animation
 var then = 0;
-var modelXRotationRadians = degToRad(0);
-var modelYRotationRadians = degToRad(0);
+var lightposition = [-5, 5, -5, 1.0];
+var carPosition = [0, -0.5, 7];
+var viewDistance = 30;
 
 
 /**
@@ -94,14 +97,11 @@ function installModel(modelData) {
  * @return None
  */
 function update(object) {
-
-    // gl.uniform1i(u_ambient, 1);
-    // gl.uniform1i(u_diffuse, 1);
-    // gl.uniform1i(u_specular, 1);
-
     /* Get the matrix for transforming normal vectors from the modelview matrix,
     	 and send matrices to the shader program*/
     mat3.normalFromMat4(normalMatrix, modelview);
+    mat3.transpose(normalMatrix, normalMatrix);
+    mat3.invert(normalMatrix, normalMatrix);
 
     gl.uniformMatrix3fv(u_normalMatrix, false, normalMatrix);
     gl.uniformMatrix4fv(u_modelview, false, modelview);
@@ -109,41 +109,6 @@ function update(object) {
 
     /* Draw the model.  The data for the model was set up in installModel() */
     gl.drawElements(gl.TRIANGLES, object.indices.length, gl.UNSIGNED_SHORT, 0);
-
-    //   var translateVec = vec3.create();
-    //   var scaleVec = vec3.create();
-    //
-    //   gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
-    //   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    //
-    //   // We'll use perspective
-    //   mat4.perspective(pMatrix,degToRad(90), gl.viewportWidth / gl.viewportHeight, 0.1, 200.0);
-    //
-    //   // Setup the scene and camera
-    //   mvPushMatrix();
-    // var rotateMat = mat4.create();
-    // mat4.rotateY(rotateMat, rotateMat, modelYRotationRadians);
-    // uploadRotateMatrixToShader(rotateMat);
-    //   vec3.set(translateVec,0.0,0.0,-10.0);
-    //   mat4.translate(mvMatrix, mvMatrix,translateVec);
-    //   setMatrixUniforms();
-    //
-    //   vec3.add(viewPt, eyePt, viewDir);
-    //   mat4.lookAt(mvMatrix,eyePt,viewPt,up);
-    // // Setup lights
-    // uploadLightsToShader([0,20,0],[0.0,0.0,0.0],[0.3,0.3,0.3],[0.3,0.3,0.3]);
-    //
-    // // render the skybox
-    //   drawSkybox();
-    // // if the teapot has been successfully read in, render the teapot
-    // if (ready_to_draw){
-    // 	mat4.rotateY(mvMatrix,mvMatrix,modelYRotationRadians);
-    // 	drawTeapot();
-    // }
-    //
-    // // reset mvMatrix
-    //   mvPopMatrix();
-
 }
 
 function createProgram(gl, vertexShaderID, fragmentShaderID) {
@@ -226,30 +191,58 @@ function initGL() {
     //gl.uniform4f(u_lightPosition, 0, 0, 0, 1);
 }
 
-
+var deg = 0;
+var lx = lightposition[0];
+var ly = lightposition[1];
+var lz = lightposition[2];
+var x = carPosition[0];
+var y = carPosition[1];
+var z = carPosition[2];
 /**
  * Function to animate the scene by spinning the teapot around its y axis.
  * @return None
  */
-// function animate() {
-//     if (then==0)
-//     {
-//     	then = Date.now();
-//     }
-//     else
-//     {
-// 		now=Date.now();
-// 		// Convert to seconds
-// 		now *= 0.001;
-// 		// Subtract the previous time from the current time
-// 		var deltaTime = now - then;
-// 		// Remember the current time for the next frame.
-// 		then = now;
-//
-// 		// Animate the Rotation
-// //		modelYRotationRadians += 0.01;
-//     }
-// }
+function animate() {
+    if (then == 0) {
+        then = Date.now();
+    } else {
+        now = Date.now();
+        // Convert to seconds
+        now *= 0.001;
+        // Subtract the previous time from the current time
+        var deltaTime = now - then;
+        // Remember the current time for the next frame.
+        then = now;
+
+        // Animate the Rotation
+        moonDeg -= degToRad(1);
+        moonDeg %= degToRad(360);
+        //rotate z axis
+        // newX = x * c + y * s;
+        // newY = x * -s + y * c;
+
+        var c = Math.cos(moonDeg);
+        var s = Math.sin(moonDeg);
+
+        // x * x * (1 - c) + c,         x * y * (1 - c) - z * s,    x * z * (1 - c) + y * s, 0,
+        // y * x * (1 - c) + z * s,     y * y * (1 - c) + c,        y * z * (1 - c) - x * s, 0,
+        // x * z * (1 - c) - y * s,     y * z * (1 - c) + x * s,    z * z * (1 - c) + c,
+
+        lightposition[0] = (lx * Math.cos(moonDeg)) + (ly * -Math.sin(moonDeg));
+        lightposition[1] = (lx * Math.sin(moonDeg)) + (ly * Math.cos(moonDeg));
+        // lightposition[0] = lxx * lx * lx * (1 - c) + c + lx * ly * (1 - c) - lz * s + lx * lz * (1 - c) + ly * s;
+        // lightposition[1] = ly * lx * (1 - c) + lz * s + ly * ly * (1 - c) + c + ly * lz * (1 - c) - lx * s;
+        // lightposition[2] = ly * lz * (1 - c) + lz * lz * (1 - c) + c;
+
+        // carPosition[0] = (carPosition[0] * Math.cos(moonDeg)) + (carPosition[2] * Math.sin(moonDeg));
+        // carPosition[2] = (carPosition[0] * -Math.sin(moonDeg)) + (carPosition[2] * Math.cos(moonDeg));
+        carPosition[0] = (x * Math.cos(moonDeg)) + (z * Math.sin(moonDeg));
+        carPosition[2] = (x * -Math.sin(moonDeg)) + (z * Math.cos(moonDeg));
+        // carPosition[0] = x * x * (1 - c) + c + x * y * (1 - c) - z * s + x * z * (1 - c) + y * s;
+        // carPosition[1] = y * x * (1 - c) + z * s + y * y * (1 - c) + c + y * z * (1 - c) - x * s;
+        // carPosition[2] = x * z * (1 - c) - y * s + y * z * (1 - c) + x * s + z * z * (1 - c) + c;
+    }
+}
 
 /**
  * Function to verify if a value is a power of 2 or not
@@ -265,16 +258,12 @@ function draw() {
     gl.clearColor(0.5, 0.5, 0.5, 0.9); //back ground color
     gl.enable(gl.DEPTH_TEST);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    mat4.perspective(projection, Math.PI / 5, 1, 10, 40);
+    mat4.perspective(projection, Math.PI / 5, 1, viewDistance -10, viewDistance + 10);
     modelview = rotator.getViewMatrix();
 
-
-    // set up event listener for keystrokes
-    //document.onkeydown = handleKeyDown;
-
-    // setup pipeline to be able to render scene
-    drawMoon(modelview, 1, u_lightPosition, [0,0,0,1], [-5, 5, -5], null, null, null, null, null, null, null);
-    drawCar(modelview, [0, -0.5, 7], [0.5, 0.5, 0.5]);
+    //addLight( u_lightPosition, [ lightposition[0],lightposition[1], lightposition[2], lightposition[3]] );
+    drawMoon(modelview, 1, u_lightPosition, lightposition, [-5, 5, -5], null, null, moonDeg, null, null, [0, 0, 1], null);
+    drawCar(modelview, carPosition, [0.5,0.5,0.5], moonDeg, 1, moonDeg, 0);
     drawGround(modelview, [0, -0.4, 0], [2, 2, 2]);
     drawTree(modelview, [-1.5, -0.3, 2], null, null, null, null, null, null, null);
     drawTree(modelview, [-1, -0.3, -1], null, null, null, null, null, null, null);
@@ -313,28 +302,40 @@ function startup() {
             "<p>Sorry, could not initialize the WebGL graphics context:" + e + "</p>";
         return;
     }
-    rotator = new TrackballRotator(canvas, draw, 30, [0, 10, 10], [0, 1, 0]);
+    rotator = new TrackballRotator(canvas, draw, viewDistance, [0, 10, 10], [0, 1, 0]);
     draw();
-    // gl.uniform4fv(u_lightPosition, lightPositions[0]);
-    // draw();
-    //
-    // gl.uniform1f(u_specularExponent, 10);
-    // draw();
 
-    //setupShaders();
-    //setupBuffers();
-    //setupCubeMap();
-
-    // kick off the drawing loop
-    //tick();
+    tick();
 }
 
 /**
  * Callback function to perform draw each frame
  * @return None
  */
-// function tick() {
-//     requestAnimFrame(tick);
-//     draw();
-//     animate();
-// }
+function tick() {
+    requestAnimFrame(tick);
+    draw();
+    animate();
+}
+
+
+function uploadNormalMatrixToShader() {
+    mat3.fromMat4(normalMatrix, modelview);
+    mat3.transpose(normalMatrix, normalMatrix);
+    mat3.invert(normalMatrix, normalMatrix);
+    gl.uniformMatrix3fv(shaderProgram.nMatrixUniform, false, modelview);
+}
+
+function setMatrixUniforms() {
+    uploadModelViewMatrixToShader();
+    uploadNormalMatrixToShader();
+    uploadProjectionMatrixToShader();
+}
+
+function uploadModelViewMatrixToShader() {
+    gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, modelview);
+}
+
+function uploadProjectionMatrixToShader() {
+    gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, modelview);
+}

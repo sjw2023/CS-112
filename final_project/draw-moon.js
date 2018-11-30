@@ -20,7 +20,7 @@ function drawMoon(mat, onOff, lightBuffer, lightPosition, trans, degx, degy, deg
 	if(onOff==1)
 	{
 		gl.uniform1f(u_isMoon, 1.);
-		addLight( lightBuffer, [ trans[0], trans[1], trans[2], 1] );
+		addLight( lightBuffer, [ lightposition[0],lightposition[1], lightposition[2], lightposition[3]] );
 	}
     drawSphere(mat, yellow, 1, 32, 16, null, null, null, null, null, null, null, null);
     if (trans != null) {
@@ -40,7 +40,9 @@ function drawMoon(mat, onOff, lightBuffer, lightPosition, trans, degx, degy, deg
             mat4.rotate(mat, mat, -degx, x);
         }
     }
-    gl.uniform1f(u_isMoon, 0.0);
+    if(onOff == 1){
+        gl.uniform1f(u_isMoon, 0.0);
+    }
 }
 
 function addLight( lightBuffer, lightPosition ){

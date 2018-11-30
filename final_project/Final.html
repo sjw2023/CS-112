@@ -36,6 +36,7 @@
     uniform float specularExponent;
     uniform float isMoon;
     varying vec4 v_color;
+    
     void main() {
         vec4 coords = vec4(a_coords,1.0);
         vec4 eyeCoords = modelview* coords;

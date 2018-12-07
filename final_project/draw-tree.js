@@ -16,8 +16,8 @@ function drawTree(mat, trans, degx, degy, degz, x, y, z, scale) {
     if (trans != null) {
         mat4.translate(mat, mat, trans);
     }
-    drawCylinder(mat, brown, 1, 1, 32, 0, 0, null, degToRad(90), null, null, [1, 0, 0], null, null, [0.2, 0.2, 0.5]);
-    drawCone(mat, green, 1, 2, 32, 0, [0, 0, 1.2], degToRad(-90), null, null, [1, 0, 0], null, null, [0.5, 0.5, 0.8]);
+    drawCylinder(mat, brown, 1, 1, 32, 0, 0, null, degToRad(90), null, null, [1, 0, 0], null, null, [0.2, 0.2, 0.5],null, null, null);
+    drawCone(mat, green, 1, 2, 32, 0, [0, 0, 1.2], degToRad(90), null, null, [1, 0, 0], null, null, [0.5, 0.5, 0.8]);
     if (trans != null) {
         mat4.translate(mat, mat, [-trans[0], -trans[1], -trans[2]]);
     }

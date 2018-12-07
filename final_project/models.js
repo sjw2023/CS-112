@@ -50,8 +50,7 @@ function cube(side) {
         vertexPositions: new Float32Array(coords),
         vertexNormals: new Float32Array(normals),
         vertexTextureCoords: new Float32Array(texCoords),
-        indices: new Uint16Array(indices),
-        //num: new Uint16Array( vertexCount )
+        indices: new Uint16Array(indices)
     }
 }
 
@@ -308,6 +307,10 @@ function uvCylinder(radius, height, slices, noTop, noBottom) {
     var kt = 0;
     var k = 0;
     var i, u;
+    ///added for headlight
+    var lightPosition = new Float32Array(3);
+    var lightNormal = new Float32Array(3);// direction of light
+    /////////
     for (i = 0; i <= slices; i++) {
         u = i * du;
         var c = Math.cos(u);
@@ -339,6 +342,7 @@ function uvCylinder(radius, height, slices, noTop, noBottom) {
     }
     var startIndex = kv / 3;
     if (!noBottom) {
+
         vertices[kv] = 0;
         normals[kv++] = 0;
         vertices[kv] = 0;
@@ -368,10 +372,22 @@ function uvCylinder(radius, height, slices, noTop, noBottom) {
     }
     var startIndex = kv / 3;
     if (!noTop) {
+        ////changed here for drawing light on headlight////////
+        lightPosition[0] = 0;
+        lightNormal[0] = 0;
+        ////////
         vertices[kv] = 0;
         normals[kv++] = 0;
+        ////changed here for drawing light on headlight////////
+        lightPosition[1] = 0;
+        lightNormal[1] = 0;
+        ////////
         vertices[kv] = 0;
         normals[kv++] = 0;
+        ////changed here for drawing light on headlight////////
+        lightPosition[2] = height / 2;
+        lightNormal[2] = 1;
+        ////////
         vertices[kv] = height / 2;
         normals[kv++] = 1;
         texCoords[kt++] = 0.5;
@@ -399,7 +415,9 @@ function uvCylinder(radius, height, slices, noTop, noBottom) {
         vertexPositions: vertices,
         vertexNormals: normals,
         vertexTextureCoords: texCoords,
-        indices: indices
+        indices: indices,
+        lightPosition: lightPosition,
+        lightNormal: lightNormal
     };
 }
 

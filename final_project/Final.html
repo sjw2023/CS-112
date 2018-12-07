@@ -15,75 +15,258 @@
 
     <!-- vertex shader -->
     <script type="x-shader/x-vertex" id="vshader-source">
-
-        // TODO: Your code goes here.
-    // Vertex Shader computes the coordinates for all the vertices which are being drawn.
-    // Fragment Shader computes the color for those vertices.
-    // You can also pass variables from the vertex shader to the fragment shader.
-    // Look into the pa2.js and see what attributes and uniforms are being transferred to both the
-    // shaders. Write the code in both the shaders appropriately.
     attribute vec3 a_coords;
     attribute vec3 a_normal;
     attribute vec3 color;
 
+    /////Matrices//////
     uniform mat4 modelview;
     uniform mat4 projection;
-
     uniform mat3 normalMatrix;
+
+    ////////Lighting Variables
     uniform vec4 lightPosition;
+
+    uniform vec3 ambientColor;
     uniform vec4 diffuseColor;
     uniform vec3 specularColor;
     uniform float specularExponent;
+    /////////Moon/////////
+    uniform float isMoonDown;
     uniform float isMoon;
+    uniform float isGround;
+    //////spot light///////
+    uniform float u_limit;
+    uniform float isHeadLight;
+    uniform vec4 carHeadLightPosition;
+    uniform vec3 carLightDirection;
+
+    vec4 lightPos;
+    vec3 lightDir;
+    ////////////////////////
     varying vec4 v_color;
-    
+    vec3 dcolor ;
+    vec4 coords ;
+    vec4 eyeCoords ;
+
+    // vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
+    // {
+    //     vec3 lightDir = normalize(light.position - fragPos);
+    //     // Diffuse shading
+    //     float diff = max(dot(normal, lightDir), 0.0);
+    //     // Specular shading
+    //     vec3 reflectDir = reflect(-lightDir, normal);
+    //     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+    //     // Attenuation
+    //     float distance = length(light.position - fragPos);
+    //     // float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+    //     // Spotlight intensity
+    //     float theta = dot(lightDir, normalize(-light.direction));
+    //     float epsilon = light.cutOff - light.outerCutOff;
+    //     float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
+    //     // Combine results
+    //     vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
+    //     vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoords));
+    //     vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
+    //     // ambient *= attenuation * intensity;
+    //     // diffuse *= attenuation * intensity;
+    //     // specular *= attenuation * intensity;
+    //     return (diffuse + specular);
+    // }
+    //
+
+    void drawLightMoonUp(in vec3 N, in vec3 L, in vec3 R, in vec3 V, float se)
+    {
+        float diffuseLightWeightning = max(dot(N, L), 0.0);
+        float specularLightWeightning = pow(max(dot(R, V), 0.0), se);
+
+        v_color = vec4((color) + ((diffuseColor.rgb) * diffuseLightWeightning) + ((specularColor) * specularLightWeightning), 1.0);
+
+        // if( dot(N, L) <  0. )
+        // {
+        //     // diffuseLightWeightning = abs(dot(N,L));
+        //     v_color = vec4(0,0,0,1);
+        // }
+    }
+    vec3 c_distance(vec3 color, float distance)
+    {
+
+
+        if(distance > 0. && distance < 0.5)
+        {
+            return vec3(vec3(1,1,1)*0.9);
+        }
+        else if(distance > 0.5 && distance <= 1.)
+        {
+            return vec3(vec3(0,1,1)*0.1);
+        }
+        else if(distance > 1. && distance <= 1.5)
+        {
+            return vec3(vec3(1,0,1)*0.2);
+        }
+        else if(distance > 1.5 && distance <= 2.)
+        {
+            return vec3(vec3(1,1,0)*0.3);
+        }
+        else if(distance > 2. && distance <= 2.5)
+        {
+            return vec3(vec3(1,0,0)*0.4);
+        }
+        else if(distance > 2.5 && distance <= 3.)
+        {
+            return vec3(vec3(0,1,0)*0.5);
+        }
+        else if(distance > 3. && distance <= 3.5)
+        {
+            return vec3(vec3(0,0,1)*0.6);
+        }
+        else if(distance > 3.5 && distance <= 4.)
+        {
+            return vec3(vec3(0,0,0)*0.7);
+        }
+        else if(distance > 4. && distance <= 4.5)
+        {
+            return vec3(color*0.8);
+        }
+        else
+        {
+            return vec3(color);
+        }
+
+    }
+
+    void drawLightMoonDown(in vec3 N, in vec3 L, in vec3 R, in vec3 V)
+    {
+        // float ambient = color * 1.;
+        ////////test light
+        // vec3 light = vec3(5,0,0);
+        // vec4 transformed = modelview * vec4( light, 1 );
+        // vec3 dir = transformed.xyz - eyeCoords.xyz;
+
+        float diffuseLightWeightning = max(dot(N, L), 0.0);
+        float specularLightWeightning = pow(max(dot(R, V), 0.0), specularExponent);
+        // Spotlight intensity
+        // float theta = dot(L, -lightDir);
+        // float epsilon = u_limit;// - light.outerCutOff;
+        // float intensity = clamp((theta - u_limit), 0.0, 1.0);
+
+        // vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
+        // vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoords));
+        // vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
+        // // ambient *= attenuation * intensity;
+        // // diffuse *= attenuation * intensity;
+        // // specular *= attenuation * intensity;
+        // v_color = vec4(((color) + ((diffuseColor.rgb) * diffuseLightWeightning) + ((specularColor) * specularLightWeightning)) * intensity, 1.0);
+        // return (diffuse + specular);
+
+        // vec3 dcolor;
+        // float angle = dot(-dir,vec3(0,-1,0));
+        float angle = dot(L, lightDir);
+        float distance = length(lightPos.xyz/lightPos.w - eyeCoords.xyz);
+        // // v_color = vec4((color) + ((diffuseColor.rgb) * diffuseLightWeightning) + ((specularColor) * specularLightWeightning), 1.0);
+        if (angle >= u_limit) {
+            v_color = vec4((color) + ((diffuseColor.rgb) * diffuseLightWeightning ) + ((specularColor) * specularLightWeightning ), 1.0);
+        //     v_color = vec4(1,1,1,1);
+            // v_color = vec4( color + dot(dir, N) * vec3(1,1,0) * 0.8, 1. );
+        }    // v_color = vec4(0,0,0,1);
+        //     //float lightDistance = length( L );
+        //     dcolor = color;
+        //     // dcolor *= punctualLightIntensityToIrradianceFactor(lightDistance,100, 0.2);
+        //     // dcolor = 1.*dot(L,N) * diffuseColor.rgb;  // 0.8 is diffuse intensity of light
+        //     // // if (dcolor > vec3(0,0,0)) {
+        //     //     if (dot(R,V) > 0.0) {
+        //     //         dcolor += 0.8*pow(dot(R,V),specularExponent) * specularColor; // 0.4 is specular intensity of light
+        //     //     }
+        //     //     dcolor *= vec3(color);
+        //     // // }
+        //     dcolor += 0.8*dot(L,N) * diffuseColor.rgb;  // 0.8 is diffuse intensity of light
+        //     if (dot(R,V) > 0.0) {
+        //         dcolor += 0.4*pow(dot(R,V),specularExponent) * specularColor; // 0.4 is specular intensity of light
+        //     }
+        //     dcolor += vec3(color);
+        //     v_color = vec4(dcolor, diffuseColor.a);
+        // }
+        // else?
+            v_color = vec4( color + dot(L, lightDir)  * vec3(1,1,0), 1. );
+            // v_color = vec4( c_distance(color, angle) ,1.);
+        // }??
+        // if( isMoon == 1. ){
+            // v_color = vec4(color, 1.);
+        // }
+        // else{
+        //     v_color = vec4(dcolor, diffuseColor.a);
+        // }
+    }
+
     void main() {
-        vec4 coords = vec4(a_coords,1.0);
-        vec4 eyeCoords = modelview* coords;
+        // vec3 dcolor = color;
+        // vec4 coords = vec4(a_coords,1.0);
+        // vec4 eyeCoords = modelview * coords;//transformed position of vertex
+
+        dcolor = color;
+         coords = vec4(a_coords,1.0);
+         eyeCoords = modelview * coords;//transformed position of vertex
         gl_Position = projection * eyeCoords;
 
+        if(isMoonDown == 1.){
+            lightPos = carHeadLightPosition;
+            // lightDir = normalize(normalMatrix*carLightDirection);
+
+            lightDir = normalize(vec3(modelview * vec4(carLightDirection,1.)).xyz);
+            // lightDir = normalize( vec4(carLightDirection,1.).xyz);
+
+        }
+        else{
+            // lightPos = carHeadLightPosition;
+            // lightDir = vec3((modelview * vec4(normalize(carLightDirection),1.)).xyz);
+            lightPos = lightPosition;
+        }
         vec3 N, L, R, V;  // vectors for lighting equation
-        N = normalize( normalMatrix*a_normal );
-        if ( lightPosition.w == 0.0 ) {
-            L = normalize( lightPosition.xyz );
+        N = normalize( normalMatrix * a_normal);
+        if ( lightPos.w == 1. ) {
+            L = normalize( lightPos.xyz );
         }
         else {
-            L = normalize( lightPosition.xyz/lightPosition.w - eyeCoords.xyz );
+            L = normalize( lightPos.xyz/lightPos.w - eyeCoords.xyz );
+            // L = normalize( lightPos.xyz - eyeCoords.xyz );
         }
-        R = -reflect(L,N);
-        V = normalize( -eyeCoords.xyz);     // (Assumes a perspective projection.)
-        if ( dot(L,N) <= 0.0 ) {
-            v_color = vec4(0,0,0,1);
+        R =  normalize(reflect(-L,N));
+        V = normalize(-eyeCoords.xyz);     // (Assumes a perspective projection.)
+        if( isMoonDown == 0.)
+        {
+            drawLightMoonUp( N, L, R, V, specularExponent);
         }
-        else {
-            vec3 dcolor = 0.8*dot(L,N) * diffuseColor.rgb;  // 0.8 is diffuse intensity of light
-            if (dot(R,V) > 0.0) {
-                dcolor += 0.4*pow(dot(R,V),specularExponent) * specularColor; // 0.4 is specular intensity of light
-            }
-            dcolor = color * dcolor;
-            if( isMoon == 1. ){
-                v_color = vec4(color, 1.);
-            }
-            else{
-                v_color = vec4(dcolor, diffuseColor.a);
-            }
+        else{
+            // drawLightMoonUp( N, L, R, V, specularExponent);
+            drawLightMoonDown(N, L, R, V);
         }
+
     }
+    //
+    // float punctualLightIntensityToIrradianceFactor( const in float lightDistance, const in float cutoffDistance, const in float decayExponent ) {
+    //     if( decayExponent > 0.0 ) {
+	// 		float distanceFalloff = 1.0 / max( pow( lightDistance, decayExponent ), 0.01 );
+	// 		float maxDistanceCutoffFactor = pow2( saturate( 1.0 - pow4( lightDistance / cutoffDistance ) ) );
+	// 		return distanceFalloff * maxDistanceCutoffFactor;
+    //     }
+    // }
 </script>
 
     <!-- fragment shader -->
     <script type="x-shader/x-fragment" id="fshader-source">
         #ifdef GL_FRAGMENT_PRECISION_HIGH
-       precision highp float;
+    precision highp float;
     #else
-       precision mediump float;
+    precision mediump float;
     #endif
-
     varying vec4 v_color;
-    void main() {
-        gl_FragColor = v_color;
-    }
+    //varying  vec2 fTexCoord;
 
+    uniform sampler2D Tex0;
+    uniform sampler2D Tex1;
+    void main(){
+        gl_FragColor = v_color;//*(texture2D(Tex0, fTexCoord)*texture2D(Tex1, fTexCoord));
+    }
 </script>
 
     <script src="gl-matrix-min.js"></script>

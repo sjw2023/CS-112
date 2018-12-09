@@ -1,32 +1,30 @@
 function wheel(mat, turnWheel) {
-    //size = [2,2,2];
-    //mat4.scale( mat, mat, size );
+    mvPush();
     mat4.rotate(mat, mat, turnWheel, [0, 0, 1]);
     drawCylinder(mat, grey, 1, 1, 32, 0, 0, null, null, null, null, null, null, null, [0.08, 0.08, 0.8],null, null, null);
     drawCylinder(mat, grey, 1, 1, 32, 1, 1, [0, -2.5, 0], degToRad(-90), null, null, [1, 0, 0], null, null, [0.08, 0.08, 1.5],null, null, null);
     drawCylinder(mat, grey, 1, 1, 32, 1, 1, [1.5, -1.5, 0], degToRad(-90), null, null, [1, 1, 0], null, null, [0.08, 0.08, 1.5],null, null, null);
     drawCylinder(mat, grey, 1, 1, 32, 1, 1, [2, 0, 0], null, degToRad(-90), null, null, [0, 1, 0], null, [0.08, 0.08, 1.5],null, null, null);
     drawCylinder(mat, grey, 1, 1, 32, 1, 1, [0, -2, 0], degToRad(-90), degToRad(45), null, [1, 0, 0], [0, 1, 0], null, [0.08, 0.08, 1.5],null, null, null);
-    mat4.rotate(mat, mat, -turnWheel, [0, 0, 1]);
+    mvPop();
     drawTorus(mat, black, 2, 1, 32, 16, null, null, null, null, null, null, null, [0.5, 0.5, 0.5]);
-    //mat4.scale(mat, mat, [1/size[0], 1/size[1], 1/size[2]]);
 }
 
 function drawLight(mat,light, lightPosition, lightDirection) {
     drawCylinder(mat, yellow, 1, 1, 32, 0, 1, [-5, 0, 15], null, degToRad(-90), null, null, [0, 1, 0], null, [0.1, 0.1, 0.1], light,lightPosition, lightDirection);
-    drawCylinder(mat, yellow, 1, 1, 32, 0, 1, [5, 0, 15], null, degToRad(-90), null, null, [0, 1, 0], null, [0.1, 0.1, 0.1], light,lightPosition, lightDirection);
-    drawCylinder(mat, yellow, 1, 1, 32, 0, 1, [-5, 0, 35], null, degToRad(-90), null, null, [0, 1, 0], null, [0.1, 0.1, 0.1], light,lightPosition, lightDirection);
-    drawCylinder(mat, yellow, 1, 1, 32, 0, 1, [5, 0, 35], null, degToRad(-90), null, null, [0, 1, 0], null, [0.1, 0.1, 0.1], light,lightPosition, lightDirection);
-
+    // drawCylinder(mat, yellow, 1, 1, 32, 0, 1, [5, 0, 15], null, degToRad(-90), null, null, [0, 1, 0], null, [0.1, 0.1, 0.1], light,lightPosition, lightDirection);
+    // drawCylinder(mat, yellow, 1, 1, 32, 0, 1, [-5, 0, 35], null, degToRad(-90), null, null, [0, 1, 0], null, [0.1, 0.1, 0.1], light,lightPosition, lightDirection);
+    // drawCylinder(mat, yellow, 1, 1, 32, 0, 1, [5, 0, 35], null, degToRad(-90), null, null, [0, 1, 0], null, [0.1, 0.1, 0.1], light,lightPosition, lightDirection);
 }
 
-function drawCarBody(mat, location, size, headLight,lightPosition, lightDirection) {
-        drawCube(mat, red, 1, null, degToRad(-90), degToRad(180), null, [1,0,0], [0,1,0], null, [3,1.5, 0.5]);
-        drawCube(mat, red, 1, [0, 0, -1], degToRad(-90), degToRad(180), null, [1,0,0], [0,1,0], null, [1.5,1.2, .5]);
-        drawLight(mat, headLight, lightPosition, lightDirection);
+function drawCarBody(mat, headLight,lightPosition, lightDirection) {
+    drawCube(mat, red, 1, [0, -1, 0], null, null, null, null, null, null, [3, 0.5, 1.5]);
+    drawCube(mat, red, 1, null, null, null, null, null, null, null, [1.5, .2, 1.5]);
+    drawLight(mat, headLight, lightPosition, lightDirection);
 }
 
 function drawWheel(mat, trans, scale, degx, degy, degz, x, y, z, turnWheel) {
+    mvPush( );
     if (degx != null || degy != null || degz != null) {
         if (x != null) {
             mat4.rotate(mat, mat, degx, x);
@@ -45,30 +43,33 @@ function drawWheel(mat, trans, scale, degx, degy, degz, x, y, z, turnWheel) {
         mat4.translate(mat, mat, trans);
     }
     wheel(mat, turnWheel);
-    if (trans != null) {
-        mat4.translate(mat, mat, [-trans[0], -trans[1], -trans[2]]);
-    }
-    if (scale != null) {
-        mat4.scale(mat, mat, [1 / scale[0], 1 / scale[1], 1 / scale[2]]);
-    }
-    if (degx != null || degy != null || degz != null) {
-        if (z != null) {
-            mat4.rotate(mat, mat, -degz, z);
-        }
-        if (y != null) {
-            mat4.rotate(mat, mat, -degy, y);
-        }
-        if (x != null) {
-            mat4.rotate(mat, mat, -degx, x);
-        }
-    }
+    mvPop();
+    // if (trans != null) {
+    //     mat4.translate(mat, mat, [-trans[0], -trans[1], -trans[2]]);
+    // }
+    // if (scale != null) {
+    //     mat4.scale(mat, mat, [1 / scale[0], 1 / scale[1], 1 / scale[2]]);
+    // }
+    // if (degx != null || degy != null || degz != null) {
+    //     if (z != null) {
+    //         mat4.rotate(mat, mat, -degz, z);
+    //     }
+    //     if (y != null) {
+    //         mat4.rotate(mat, mat, -degy, y);
+    //     }
+    //     if (x != null) {
+    //         mat4.rotate(mat, mat, -degx, x);
+    //     }
+    // }
 }
 
 
 /*
  ** turnWheel 1 is turning, 0 is not turning wheel
  */
-function drawCar(mat, location, size, degx, degy, degz, x, y, z, turnWheel, turningSpeed, headLight, lightPosition, lightDirection) {
+function drawCar(mat, degx, degy, degz, x, y, z, turnWheel, turningSpeed, headLight, lightPosition, lightDirection) {
+    mvPush( );
+
     if (size != null) {
         mat4.scale(mat, mat, size);
     }
@@ -86,7 +87,7 @@ function drawCar(mat, location, size, degx, degy, degz, x, y, z, turnWheel, turn
             mat4.rotate(mat, mat, degz, z);
         }
     }
-    drawCarBody(mat, [0, 0, 0], [0, 0, 0], headLight, lightPosition, lightDirection);
+    drawCarBody(mat, headLight, lightPosition, lightDirection);
     if (turnWheel == 1) {
         //rear left
         drawWheel(mat, [2, 0, 2], [0.5, 0.5, 0.5], null, null, null, null, null, null, -turningSpeed);
@@ -107,21 +108,22 @@ function drawCar(mat, location, size, degx, degy, degz, x, y, z, turnWheel, turn
         //front left
         drawWheel(mat, [-2, 0, -2], [0.5, 0.5, 0.5], degToRad(180), null, null, [1, 0, 0], null, null, null);
     }
-    if (degx != null || degy != null || degz != null) {
-        if (z != null) {
-            mat4.rotate(mat, mat, -degz, z);
-        }
-        if (y != null) {
-            mat4.rotate(mat, mat, -degy, y);
-        }
-        if (x != null) {
-            mat4.rotate(mat, mat, -degx, x);
-        }
-    }
-    if (location != null) {
-        mat4.translate(mat, mat, [-location[0], -location[1], -location[2]]);
-    }
-    if (size != null) {
-        mat4.scale(mat, mat, [1 / size[0], 1 / size[1], 1 / size[2]]);
-    }
+    mvPop();
+    // if (degx != null || degy != null || degz != null) {
+    //     if (z != null) {
+    //         mat4.rotate(mat, mat, -degz, z);
+    //     }
+    //     if (y != null) {
+    //         mat4.rotate(mat, mat, -degy, y);
+    //     }
+    //     if (x != null) {
+    //         mat4.rotate(mat, mat, -degx, x);
+    //     }
+    // }
+    // if (location != null) {
+    //     mat4.translate(mat, mat, [-location[0], -location[1], -location[2]]);
+    // }
+    // if (size != null) {
+    //     mat4.scale(mat, mat, [1 / size[0], 1 / size[1], 1 / size[2]]);
+    // }
 }

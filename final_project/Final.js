@@ -46,7 +46,7 @@ var u_isHeadLight
 var rotator; // A TrackballRotator to implement rotation by mouse.
 
 // Create ModelView matrix
-var modelview = mat4.create();
+var mvMatrix = mat4.create();
 
 // Create Projection matrix
 var projection = mat4.create();
@@ -94,11 +94,27 @@ var moonDown = 0;
 lightDeg = degToRad(20);
 forwardDeg = degToRad(70);
 
+var mvMatrixStack = [];
+// var StackSize = 0;
+
 
 // var cxf = carLightPositionForward[0];
 // var czf = carLightPositionForward[2];
 // var cx = carLightPosition[0];
 // var cz = carLightPosition[2];
+
+function mvPush()
+{
+    var copy = mat4.clone(mvMatrix);
+    mvMatrixStack.push(copy);
+}
+function mvPop()
+{
+    if (mvMatrixStack.length == 0) {
+    	throw "Invalid popMatrix!";
+    }
+    mvMatrix = mvMatrixStack.pop();
+}
 
 function initGL() {
     shader = createProgram(gl, "vshader-source", "fshader-source");
@@ -302,7 +318,9 @@ function update(object) {
 
     /* Get the matrix for transforming normal vectors from the modelview matrix,
     	 and send matrices to the shader program*/
-    mat3.normalFromMat4(normalMatrix, modelview);
+    mat3.normalFromMat4(normalMatrix, mvMatrix);
+    // mat3.invert(normalMatrix,normalMatrix);
+    // mat3.transpose(normalMatrix,normalMatrix);
     gl.uniform4f(u_lightPosition, lightposition[0], lightposition[1], lightposition[2], lightposition[3]);
     gl.uniform3f(lightDirectionLocation, carLightDirection[0], carLightDirection[1], carLightDirection[2]);
     gl.uniform4f(carLightPosition_loc, carLightPosition[0], carLightPosition[1], carLightPosition[2], 1.);
@@ -317,22 +335,9 @@ function update(object) {
     // }
     // console.log(lightposition);
     ////////Upload Matrices.
-    // mat3.fromMat4(normalMatrix, modelview);
-    // mat3.transpose(normalMatrix, normalMatrix);
-    // mat3.invert(normalMatrix, normalMatrix);
-    //mat3.fromMat4(normalMatrix, modelview);
-
-    // mat4.invert(normalMatrix, modelview);
-    // // mat4.transpose(normalMatrix, modelview);
-    // mat4.transpose(normalMatrix, normalMatrix);
-
-    // mat4.invert(normalMatrix, normalMatrix);
-    // console.log(normalMatrix);
+    gl.uniformMatrix4fv(u_modelview, false, mvMatrix);
     gl.uniformMatrix3fv(u_normalMatrix, false, normalMatrix);
-    gl.uniformMatrix4fv(u_modelview, false, modelview);
     gl.uniformMatrix4fv(u_projection, false, projection);
-    /////////////////
-
 
     /* Draw the model.  The data for the model was set up in installModel() */
     gl.drawElements(gl.TRIANGLES, object.indices.length, gl.UNSIGNED_SHORT, 0);
@@ -419,36 +424,33 @@ function isPowerOf2(value) {
 function draw() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     mat4.perspective(projection, Math.PI / 5, 1, 10, viewDistance + 10);
-    modelview = rotator.getViewMatrix();
-    //viewMatrix = rotator.getViewMatrix();
-    //mat4.invert(viewMatrix,viewMatrix);
-    //mat4.multiply(viewProjectionMatrix, projection, viewMatrix );
-    // uploadCarLight();
+    mvMatrix = rotator.getViewMatrix();
 
-    drawMoon(modelview, 1, u_lightPosition, lightposition, [-5, 5, -5], null, null, -moonDeg, null, null, [0, 0, 1], null);
-    if (moonDown == 1) {
+    testing(mvMatrix);
+    // drawMoon(modelview, 1, u_lightPosition, lightposition, [-5, 5, -5], null, null, -moonDeg, null, null, [0, 0, 1], null);
+    // if (moonDown == 1) {
         // drawCar(mat,        location,       size,         degx, degy, degz, x, y, z, turnWheel, turningSpeed, headLight, lightPosition, lightDirection) {
-        drawCar(modelview, carPosition, [0.5, 0.5, 0.5], null, -moonDeg, null, null, [0,1,0],null, 1, -moonDeg, 1, carLightPosition, carLightDirection);
-    } else {
-        drawCar(modelview, carPosition, [0.5, 0.5, 0.5], null, -moonDeg, null, null, [0,1,0],null, 1, -moonDeg, 1, carLightPosition, carLightDirection);
-    }
-    drawGround(modelview, [0, -0.4, 0], [2, 2, 2]);
-    drawTree(modelview, [-1.5, 0.3, 2], degToRad(180), null, null, [1,0,0], null, null, null);
-    drawTree(modelview, [-1, 0.3, -1], degToRad(180), null, null,  [1,0,0], null, null, null);
-    drawTree(modelview, [1, 0.3, 0], degToRad(180), null, null,  [1,0,0], null, null, null);
-    drawTree(modelview, [-2.5, 0.3, -5], degToRad(180), null,  null,  [1,0,0], null, null, null);
-    drawTree(modelview, [-0.8, 0.3, 5.5], degToRad(180), null, null,  [1,0,0], null, null, null);
-    drawTree(modelview, [1, 0.3, -5.5], degToRad(180), null, null,  [1,0,0], null, null, null);
-    drawTree(modelview, [2, 0.3, -5], degToRad(180), null, null,  [1,0,0], null, null, null);
-    drawTree(modelview, [5.5, 0.3, -1], degToRad(180), null, null,  [1,0,0], null, null, null);
-    drawTree(modelview, [5.6, 0.3, 0], degToRad(180), null, null,  [1,0,0], null, null, null);
-    drawTree(modelview, [5.4, 0.3, 1], degToRad(180), null, null,  [1,0,0], null, null, null);
+        // drawCar(mvMatrix, carPosition, [0.5, 0.5, 0.5], null, -moonDeg, null, null, [0,1,0],null, 1, -moonDeg, 1, carLightPosition, carLightDirection);
+    // } else {
+        // drawCar(modelview, carPosition, [0.5, 0.5, 0.5], null, -moonDeg, null, null, [0,1,0],null, 1, -moonDeg, 1, carLightPosition, carLightDirection);
+    // }
+    // drawGround(modelview, [0, -0.4, 0], [2, 2, 2]);
+    // drawTree(modelview, [-1.5, 0.3, 2], degToRad(180), null, null, [1,0,0], null, null, null);
+    // drawTree(modelview, [-1, 0.3, -1], degToRad(180), null, null,  [1,0,0], null, null, null);
+    // drawTree(modelview, [1, 0.3, 0], degToRad(180), null, null,  [1,0,0], null, null, null);
+    // drawTree(modelview, [-2.5, 0.3, -5], degToRad(180), null,  null,  [1,0,0], null, null, null);
+    // drawTree(modelview, [-0.8, 0.3, 5.5], degToRad(180), null, null,  [1,0,0], null, null, null);
+    // drawTree(modelview, [1, 0.3, -5.5], degToRad(180), null, null,  [1,0,0], null, null, null);
+    // drawTree(modelview, [2, 0.3, -5], degToRad(180), null, null,  [1,0,0], null, null, null);
+    // drawTree(modelview, [5.5, 0.3, -1], degToRad(180), null, null,  [1,0,0], null, null, null);
+    // drawTree(modelview, [5.6, 0.3, 0], degToRad(180), null, null,  [1,0,0], null, null, null);
+    // drawTree(modelview, [5.4, 0.3, 1], degToRad(180), null, null,  [1,0,0], null, null, null);
     // drawSphere(modelview, yellow, 1, 32, 16, carLightPosition, null, null, null, null, null, null, null);
     // drawCylinder(modelview,yellow, 1, 1 ,32, 0,0,[0,0,0], null, null, null, null, null, null ,null);
     // drawCylinder(modelview,yellow, 1, 1 ,32, 0,0,[0,0,-1], null, null, null, null, null, null ,null);
 
     // drawCube(modelview, red, 1, carLightPositionForward, null, null, null, null, null, null, null);
-    drawPole(modelview, null, degToRad(180), null, null, [1,0,0], null, null, null);
+    // drawPole(modelview, null, degToRad(180), null, null, [1,0,0], null, null, null);
 }
 /**
  * Function for doing the initialization work of the program and kicking off
@@ -519,4 +521,15 @@ function transformDirection(m, vector) {
     vector[0] = e[0] * x + e[4] * y + e[8] * z;
     vector[1] = e[1] * x + e[5] * y + e[9] * z;
     vector[2] = e[2] * x + e[6] * y + e[10] * z;
+}
+
+
+
+function testing(mat)
+{
+    drawCylinder(mat, yellow, 1, 1, 32, 0, 1, [0, 0, 0], null, degToRad(-90), null, null, [0, 1, 0], null, [0.1, 0.1, 0.1], 1,carLightPosition, carLightDirection);
+    // drawCylinder(mat, yellow, 1, 1, 32, 0, 1, [0, 0, 3], null, degToRad(-90), null, null, [0, 1, 0], null, [0.1, 0.1, 0.1], 1,carLightPosition, carLightDirection);
+    // drawCylinder(mat, red, 1, 1, 32, 0, 0, null, null, degToRad(-90), null, null, [0, 1, 0], null, null, 1, carLightPosition, carLightDirection);
+    // drawCarBody(mat, headLight, lightPosition, lightDirection);
+    drawCarBody(mat, 1, carLightPosition, carLightDirection);
 }

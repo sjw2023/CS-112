@@ -6,10 +6,9 @@
  */
 var gl;
 var canvas;
+var readyDraw;
 
-var a_coords_loc;
-var a_normal_loc;
-var a_color_loc;
+
 var a_color_buffer;
 var a_coords_buffer; // Buffer for a_coords.
 var a_normal_buffer; // Buffer for a_normal.
@@ -19,26 +18,38 @@ var shader; // shader program
 
 
 //////location variables
-var u_lightPosition;
+var a_coords_loc;
+var a_normal_loc;
+var a_color_loc;
+
 var u_modelView;
 var u_projection;
 var u_normalMatrix;
 var u_viewMatrix;
 
-
-///////lightColor////////
 var u_ambientColor;
 var u_diffuseColor;
 var u_specularColor;
 var u_specularExponent;
+
+var u_isHeadLight;
+var leftLightPosition_loc;
+var rightLightPosition_loc;
+var lightDirectionLocation;
+var limitLocation;
+
+var u_isMoon;
+var u_isMoonDown;
+var u_isHeadLight;
+
+
+///////lightColor////////
+
 var ambientColor = [0, 0, 0];
 var diffuseColor = [0, .1, .1];
 var specularColor = [0.5, 0.5, 0.5];
 var specularExponent = 5;
 
-var u_isMoon;
-var u_isMoonDown = 0.;
-var u_isHeadLight
 
 /////////
 
@@ -74,28 +85,22 @@ var viewDistance = 20;
 var lightOn = 1;
 
 var limit = degToRad(90);
-var lightDirectionLocation;
-var limitLocation;
+
 var carLightPosition_loc;
 var x = carPosition[0];
 var y = carPosition[1];
 var z = carPosition[2];
 
-var carLightPosition = vec4.create();
-var carLightPositionForward = [0, 0, 0];
-var carRightLightPosition = [2, 2, 2];
-var u_isHeadLight = 0;
+var leftLightPosition = vec4.create();
+var rightLightPosition = vec4.create();
 var carLightDirection = vec4.create();
 var moonDown = 0;
-lightDeg = degToRad(20);
-forwardDeg = degToRad(70);
 
 /////Point LIght
 var pointLightPosition_loc;
 var isPointLight_loc;
 var isPointLight = 0.;
 var pointLightPosition = vec3.create();
-
 
 var test = 0;
 
@@ -125,19 +130,20 @@ function initGL() {
     u_isGround = gl.getUniformLocation(shader, "isGround");
     isPointLight_loc = gl.getUniformLocation(shader, "isPointLight");
     pointLightPosition_loc = gl.getUniformLocation(shader, "pointLightPosition");
+    leftLightPosition_loc = gl.getUniformLocation(shader, "leftLightPosition");
+    rightLightPosition_loc = gl.getUniformLocation(shader, "rightLightPosition");
 
     a_coords_buffer = gl.createBuffer();
     a_normal_buffer = gl.createBuffer();
     index_buffer = gl.createBuffer();
     gl.enable(gl.DEPTH_TEST);
     ////spotlight
-    //u_isHeadLight = gl.getUniformLocation(shader, "isHeadLight");
-    carLightPosition_loc = gl.getUniformLocation(shader, "carHeadLightPosition");
+    u_isHeadLight = gl.getUniformLocation(shader, "isHeadLight");
     lightDirectionLocation = gl.getUniformLocation(shader, "carLightDirection");
     limitLocation = gl.getUniformLocation(shader, "u_limit");
+
+
     gl.uniform1f(limitLocation, Math.cos(limit));
-
-
     gl.uniform3f(u_ambientColor, ambientColor[0], ambientColor[1], ambientColor[2]);
     gl.uniform3f(u_specularColor, specularColor[0], specularColor[1], specularColor[2]);
     gl.uniform4f(u_diffuseColor, diffuseColor[0], diffuseColor[1], diffuseColor[2], diffuseColor[3]);
@@ -229,8 +235,8 @@ function update(object) {
     gl.uniform4f(u_lightPosition, lightposition[0], lightposition[1], lightposition[2], 0);
     gl.uniform1f(u_isMoonDown, moonDown);
     //upload Spot Light
-    // gl.uniform3f(lightDirectionLocation, carLightDirection[0], carLightDirection[1], carLightDirection[2]);
-    // gl.uniform4f(carLightPosition_loc, carLightPosition[0], carLightPosition[1], carLightPosition[2], 1.);
+    gl.uniform3f(lightDirectionLocation, carLightDirection[0], carLightDirection[1], carLightDirection[2]);
+    gl.uniform4f(carLightPosition_loc, carLightPosition[0], carLightPosition[1], carLightPosition[2], 1.);
     ///Upload Point Light
     gl.uniform4f(pointLightPosition_loc, pointLightPosition[0], pointLightPosition[1], pointLightPosition[2], 1.)
 
@@ -344,7 +350,11 @@ function startup() {
     }
     rotator = new TrackballRotator(canvas, draw, viewDistance, viewDir, up);
     draw();
-    tick();
+    document.getElementById("animate").checked = false;
+    document.getElementById("animate").onchange = function() {
+        readyDraw= (this.checked);
+        tick();
+    };
 }
 
 /**
@@ -352,7 +362,9 @@ function startup() {
  * @return None
  */
 function tick() {
-    requestAnimFrame(tick);
-    draw();
-    animate();
+    if( readyDraw ){
+        requestAnimFrame(tick);
+        draw();
+        animate();
+    }
 }

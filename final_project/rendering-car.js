@@ -13,11 +13,8 @@ function wheel(mat, turnWheel) {
 }
 
 function drawLight(mat,light, lightPosition, lightDirection) {
-    drawCylinder(mat, yellow, 1, 1, 32, 0, 1, [-5, 0, 15], null, degToRad(-90), null, null, [0, 1, 0], null, [0.1, 0.1, 0.1], light,lightPosition, lightDirection);
-    drawCylinder(mat, yellow, 1, 1, 32, 0, 1, [5, 0, 15], null, degToRad(-90), null, null, [0, 1, 0], null, [0.1, 0.1, 0.1], light,lightPosition, lightDirection);
-    drawCylinder(mat, yellow, 1, 1, 32, 0, 1, [-5, 0, 35], null, degToRad(-90), null, null, [0, 1, 0], null, [0.1, 0.1, 0.1], light,lightPosition, lightDirection);
-    drawCylinder(mat, yellow, 1, 1, 32, 0, 1, [5, 0, 35], null, degToRad(-90), null, null, [0, 1, 0], null, [0.1, 0.1, 0.1], light,lightPosition, lightDirection);
-
+    drawCylinder(mat, yellow, 1, 1, 32, 0, 1, [-5, 0, 15], null, degToRad(-90), null, null, [0, 1, 0], null, [0.1, 0.1, 0.1], light, lightPosition, lightDirection);
+    drawCylinder(mat, yellow, 1, 1, 32, 0, 1, [5, 0, 15], null, degToRad(-90), null, null, [0, 1, 0], null, [0.1, 0.1, 0.1], light, lightPosition, lightDirection);
 }
 
 function drawCarBody(mat, location, size, headLight,lightPosition, lightDirection) {

@@ -69,6 +69,7 @@ function drawWheel(mat, trans, scale, degx, degy, degz, x, y, z, turnWheel) {
  ** turnWheel 1 is turning, 0 is not turning wheel
  */
 function drawCar(mat, location, size, degx, degy, degz, x, y, z, turnWheel, turningSpeed, headLight, lightPosition, lightDirection) {
+    var rotationMatrix = mat4.create();
     if (size != null) {
         mat4.scale(mat, mat, size);
     }
@@ -80,13 +81,14 @@ function drawCar(mat, location, size, degx, degy, degz, x, y, z, turnWheel, turn
             mat4.rotate(mat, mat, degx, x);
         }
         if (y != null) {
+            mat4.rotate( rotationMatrix, rotationMatrix, degy, y );
             mat4.rotate(mat, mat, degy, y);
         }
         if (z != null) {
             mat4.rotate(mat, mat, degz, z);
         }
     }
-    drawCarBody(mat, [0, 0, 0], [0, 0, 0], headLight, lightPosition, lightDirection);
+    drawCarBody(mat, null, null, headLight, lightPosition, lightDirection);
     if (turnWheel == 1) {
         //rear left
         drawWheel(mat, [2, 0, 2], [0.5, 0.5, 0.5], null, null, null, null, null, null, -turningSpeed);

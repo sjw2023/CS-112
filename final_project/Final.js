@@ -40,8 +40,6 @@ var u_isMoon;
 var u_isMoonDown = 0.;
 var u_isHeadLight
 
-
-
 /////////
 
 var rotator; // A TrackballRotator to implement rotation by mouse.
@@ -92,6 +90,12 @@ var moonDown = 0;
 lightDeg = degToRad(20);
 forwardDeg = degToRad(70);
 
+/////Point LIght
+var pointLightPosition_loc;
+var isPointLight_loc;
+var isPointLight = 0.;
+var pointLightPosition = vec3.create();
+
 
 var test = 0;
 
@@ -119,6 +123,8 @@ function initGL() {
     u_isMoon = gl.getUniformLocation(shader, "isMoon");
     u_isMoonDown = gl.getUniformLocation(shader, "isMoonDown");
     u_isGround = gl.getUniformLocation(shader, "isGround");
+    isPointLight_loc = gl.getUniformLocation(shader, "isPointLight");
+    pointLightPosition_loc = gl.getUniformLocation(shader, "pointLightPosition");
 
     a_coords_buffer = gl.createBuffer();
     a_normal_buffer = gl.createBuffer();
@@ -209,17 +215,6 @@ function installModel(modelData) {
     // console.log(carLightDirection);
 }
 
-function uploadCarLight() {
-    // calcLightDir();
-    // applyMatrix4(modelView, carLightPosition);
-    // transformDirection( mat, carLightDirection );
-    // console.log(carLightDirection);
-    // console.log(carLightPosition); console.log(carLightPositionForward);
-    // gl.uniform3f(lightDirectionLocation, carLightDirection[0], carLightDirection[1], carLightDirection[2]);
-    // gl.uniform3f(carLightPosition_loc, carLightPosition[0], carLightPosition[1], carLightPosition[2]);
-
-}
-
 /**
  * Function to set camera location and viewing direction, as well as facilitate the rending of the
  *   skybox and teapot for each animation frame
@@ -228,17 +223,20 @@ function uploadCarLight() {
 function update(object) {
     /* Get the matrix for transforming normal vectors from the modelView matrix,
     	 and send matrices to the shader program*/
-         // mat3.fromMat4(normalMatrix,modelView);
-         // mat3.invert(normalMatrix,normalMatrix);
-         // mat3.transpose(normalMatrix,normalMatrix);
+
     mat3.normalFromMat4(normalMatrix, modelView);
+    //Upload Sun
     gl.uniform4f(u_lightPosition, lightposition[0], lightposition[1], lightposition[2], 0);
-    gl.uniform3f(lightDirectionLocation, carLightDirection[0], carLightDirection[1], carLightDirection[2]);
-    gl.uniform4f(carLightPosition_loc, carLightPosition[0], carLightPosition[1], carLightPosition[2], 1.);
+    gl.uniform1f(u_isMoonDown, moonDown);
+    //upload Spot Light
+    // gl.uniform3f(lightDirectionLocation, carLightDirection[0], carLightDirection[1], carLightDirection[2]);
+    // gl.uniform4f(carLightPosition_loc, carLightPosition[0], carLightPosition[1], carLightPosition[2], 1.);
+    ///Upload Point Light
+    gl.uniform4f(pointLightPosition_loc, pointLightPosition[0], pointLightPosition[1], pointLightPosition[2], 1.)
+
     gl.uniformMatrix3fv(u_normalMatrix, false, normalMatrix);
     gl.uniformMatrix4fv(u_modelView, false, modelView);
     gl.uniformMatrix4fv(u_projection, false, projection);
-    // gl.uniformMatrix4fv(u_viewMatrix, false, viewMatrix);
 
     /* Draw the modelView.  The data for the modelView was set up in installmodelView() */
     gl.drawElements(gl.TRIANGLES, object.indices.length, gl.UNSIGNED_SHORT, 0);
@@ -263,11 +261,9 @@ function animate() {
         moonDeg += degToRad(1);
         moonDeg %= degToRad(360);
         if (moonDeg > degToRad(135) && moonDeg < degToRad(315)) {
-            gl.uniform1f(u_isMoonDown, 1.);
-            moonDown = 1;
+            moonDown = 1.;
         } else {
-            moonDown = 0;
-            gl.uniform1f(u_isMoonDown, 0.);
+            moonDown = 0.;
         }
         carPosition[0] = Math.sin(-moonDeg) * 7;
         carPosition[2] = Math.cos(-moonDeg) * 7;
@@ -287,15 +283,17 @@ function draw() {
     mat4.perspective(projection, Math.PI / 5, 1, 10, viewDistance + 10);
     modelView = rotator.getViewMatrix();
     if (test == 0) {
-        drawMoon(modelView, 1, u_lightPosition, lightposition, [-5, 5, -5], null, null, -moonDeg, null, null, [0, 0, 1], null);
-        if (moonDown == 1) {
-            // drawCar(mat,        location,       size,         degx, degy, degz, x, y, z, turnWheel, turningSpeed, headLight, lightPosition, lightDirection) {
-            drawCar(modelView, carPosition, [0.5, 0.5, 0.5], null, -moonDeg, null, null, [0, 1, 0], null, 1, -moonDeg, 1, carLightPosition, carLightDirection);
+        if (moonDown == 1.) {
+            drawPole(modelView, null, degToRad(180), null, null, [1, 0, 0], null, null, null, 1., pointLightPosition);
+            drawMoon(modelView, 0., u_lightPosition, lightposition, [-5, 5, -5], null, null, -moonDeg, null, null, [0, 0, 1], null);
+            drawCar(modelView, carPosition, [0.5, 0.5, 0.5], null, -moonDeg, null, null, [0, 1, 0], null, 1, -moonDeg, 1., carLightPosition, carLightDirection);
         } else {
-            drawCar(modelView, carPosition, [0.5, 0.5, 0.5], null, -moonDeg, null, null, [0, 1, 0], null, 1, -moonDeg, 1, carLightPosition, carLightDirection);
+            drawMoon(modelView, 1., u_lightPosition, lightposition, [-5, 5, -5], null, null, -moonDeg, null, null, [0, 0, 1], null);
+            drawPole(modelView, null, degToRad(180), null, null, [1, 0, 0], null, null, null, 0., null);
+            drawCar(modelView, carPosition, [0.5, 0.5, 0.5], null, -moonDeg, null, null, [0, 1, 0], null, 1, -moonDeg, 0., carLightPosition, carLightDirection);
         }
         drawGround(modelView, [0, -0.4, 0], [2, 2, 2]);
-        drawTree(modelView, [-1.5, 0.3, 2], degToRad(90), null, null, [1, 0, 0], null, null, null);
+        drawTree(modelView, [-1.5, 0.3, 2], degToRad(180), null, null, [1, 0, 0], null, null, null);
         drawTree(modelView, [-1, 0.3, -1], degToRad(180), null, null, [1, 0, 0], null, null, null);
         drawTree(modelView, [1, 0.3, 0], degToRad(180), null, null, [1, 0, 0], null, null, null);
         drawTree(modelView, [-2.5, 0.3, -5], degToRad(180), null, null, [1, 0, 0], null, null, null);
@@ -305,7 +303,7 @@ function draw() {
         drawTree(modelView, [5.5, 0.3, -1], degToRad(180), null, null, [1, 0, 0], null, null, null);
         drawTree(modelView, [5.6, 0.3, 0], degToRad(180), null, null, [1, 0, 0], null, null, null);
         drawTree(modelView, [5.4, 0.3, 1], degToRad(180), null, null, [1, 0, 0], null, null, null);
-        drawPole(modelView, null, degToRad(180), null, null, [1, 0, 0], null, null, null);
+
     } else {
         // var pos = vec4.create();
         // vec4.transformMat4( pos, [0,0,0,1], mat );

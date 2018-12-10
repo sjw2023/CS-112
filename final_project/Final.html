@@ -27,16 +27,14 @@
 
     ////////Lighting Variables
     uniform vec4 lightPosition;
+    uniform vec4 pointLightPosition;
     /////////Moon/////////
     uniform float isMoonDown;
-
-    uniform float isGround;
-    //////spot light///////
-
     uniform float isHeadLight;
+    uniform float isPointLight;
+    //////spot light///////
     uniform vec4 carHeadLightPosition;
     uniform vec3 carLightDirection;
-
     vec4 lightPos;
     vec3 lightDir;
     ////////////////////////
@@ -47,38 +45,11 @@
     varying vec3 v_lDir;
     varying float v_distance;
     varying float v_isSunDown;
+    varying float v_isPointLight;
 
     varying vec4 v_color;
-    vec3 dcolor ;
     vec4 coords ;
     vec4 eyeCoords ;
-
-    // vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
-    // {
-    //     vec3 lightDir = normalize(light.position - fragPos);
-    //     // Diffuse shading
-    //     float diff = max(dot(normal, lightDir), 0.0);
-    //     // Specular shading
-    //     vec3 reflectDir = reflect(-lightDir, normal);
-    //     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-    //     // Attenuation
-    //     float distance = length(light.position - fragPos);
-    //     // float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
-    //     // Spotlight intensity
-    //     float theta = dot(lightDir, normalize(-light.direction));
-    //     float epsilon = light.cutOff - light.outerCutOff;
-    //     float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
-    //     // Combine results
-    //     vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
-    //     vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoords));
-    //     vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
-    //     // ambient *= attenuation * intensity;
-    //     // diffuse *= attenuation * intensity;
-    //     // specular *= attenuation * intensity;
-    //     return (diffuse + specular);
-    // }
-    //
-
 
     vec3 c_distance(vec3 color, float distance)
     {
@@ -125,20 +96,23 @@
 
     }
     void main() {
-        dcolor = color;
+        vec3 N, L, R, V;// vectors for lighting equation
         coords = vec4(a_coords,1.0);
         eyeCoords = modelView * coords;//transformed position of vertex
         gl_Position = projection * eyeCoords;
 
         if(isMoonDown == 1.){
-            lightPos = carHeadLightPosition;
+            lightPos = pointLightPosition;
+            if( isPointLight == 1. ){
+                // lightPos = pointLightPosition;
+            }
+            else{
+                // lightPos = carHeadLightPosition;
+            }
         }
         else{
             lightPos = lightPosition;
         }
-        vec3 N, L, R, V;// vectors for lighting equation
-
-
         if ( lightPos.w == 0. ) {//Directional Light
             L = normalize( lightPos.xyz );
         }
@@ -149,7 +123,6 @@
         R = normalize(reflect(-L,N));
         V = normalize( -eyeCoords.xyz);     // (Assumes a perspective projection.)
 
-
         v_N = N;
         v_L = L;
         v_R = R;
@@ -158,6 +131,7 @@
         v_lDir = normalize( carLightDirection );
         v_distance = length( lightPos.xyz - eyeCoords.xyz );
         v_isSunDown = isMoonDown;
+        v_isPointLight = isPointLight;
     }
 </script>
 
@@ -176,6 +150,7 @@
     varying float v_distance;
     varying vec3 v_lDir;
     varying float v_isSunDown;
+    varying float v_isPointLight;
 
 
     // uniform vec4 carHeadLightPosition;
@@ -188,24 +163,40 @@
     uniform float isMoon;
     // uniform vec3 carLightDirection;
 
-    void drawLightMoonUp(in vec3 N, in vec3 L, in vec3 R, in vec3 V )
-    {
+    void coloringWithSun(in vec3 N, in vec3 L, in vec3 R, in vec3 V, in float isSun, in float isPointLight, in vec3 color){
         /////Directional Lighting
+        vec3 o_color = color;
         float diffuseLightWeighting = max(dot(N, L), 0.0);
         float specularLightWeighting = pow(max(dot(R, V), 0.0), 10.);
         float attetuationLightWeighting;
-        if( isMoon == 1. )
-        {
-            attetuationLightWeighting = 1.; //This set Sun as emitted object
+        if( isSun == 1. ){
+            attetuationLightWeighting = 1.; //This set Sun and PointLight as emitted object
         }
-        else
-        {
+        if( isPointLight == 1. ){
+            attetuationLightWeighting = 0.;/// turnOff the point light
+        }
+        else{
             attetuationLightWeighting = clamp( 8. / v_distance, 0.0, 1.0);//1.0/(1.0+(0.25*pow(v_distance,2.0)));
+        }
+        gl_FragColor = vec4((o_color) * attetuationLightWeighting+ ((diffuseColor.rgb) * diffuseLightWeighting *attetuationLightWeighting) + ((specularColor) * specularLightWeighting*attetuationLightWeighting), 1.0);
+    }
+    void coloringWithPointLight(in vec3 N, in vec3 L, in vec3 R, in vec3 V, in float isPointLight, in float isSun ){
+        /////Point Lighting basically same with Directional lighting but diffrent in direction of light
+        float diffuseLightWeighting = max(dot(N, L), 0.0);
+        float specularLightWeighting = pow(max(dot(R, V), 0.0), 10.);
+        float attetuationLightWeighting;
+        if( isPointLight == 1. ){
+            attetuationLightWeighting = 1.; //This set Sun and PointLight as emitted object
+        }
+        if( isSun == 1. ){
+            attetuationLightWeighting = 1.;
+        }
+        else{
+            attetuationLightWeighting = clamp( 1. / v_distance, 0.0, 1.0);//1.0/(1.0+(0.25*pow(v_distance,2.0)));
         }
         gl_FragColor = vec4((v_color.rgb) * attetuationLightWeighting+ ((diffuseColor.rgb) * diffuseLightWeighting *attetuationLightWeighting) + ((specularColor) * specularLightWeighting*attetuationLightWeighting), 1.0);
     }
-    void drawLightMoonDown(in vec3 N, in vec3 L, in vec3 R, in vec3 V, in vec3 lDir)
-    {
+    void drawLightMoonDown(in vec3 N, in vec3 L, in vec3 R, in vec3 V, in vec3 lDir){
         // float ambient = color * 1.;
         float diffuseLightWeighting = max(dot(N, L), 0.0);
         float specularLightWeighting = pow(max(dot(R, V), 0.0), specularExponent);
@@ -220,18 +211,16 @@
         // {
         gl_FragColor = vec4( ( vec3(v_color) + (vec3(1,1,1)*angle)), 1.0);
         // gl_FragColor = vec4( v_distance*vec3(0,0,0), 1.);
-
-
             // gl_FragColor = vec4( ( vec3(v_color) + ((diffuseColor.rgb) * diffuseLightWeighting) + ((specularColor) * specularLightWeighting) ), 1.0);
         // }
     }
     void main(){
-        // vec3 lDir = normalize( carLightDirection );
         if( v_isSunDown == 0. ){
-            drawLightMoonUp( v_N, v_L, v_R, v_V);
+            coloringWithSun( v_N, v_L, v_R, v_V, isMoon, v_isPointLight, v_color.rgb);
         }
         else{
-            drawLightMoonDown(v_N, v_L, v_R, v_V, v_lDir);
+            // drawLightMoonDown(v_N, v_L, v_R, v_V, v_lDir);
+            coloringWithPointLight(v_N, v_L, v_R, v_V, v_isPointLight, isMoon );
         }
     }
 </script>

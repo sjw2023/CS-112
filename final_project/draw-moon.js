@@ -16,7 +16,7 @@ function drawMoon(mat, onOff, lightBuffer, lightPosition, trans, degx, degy, deg
     if (trans != null) {
         mat4.translate(mat, mat, trans);
     }
-    drawSphere(mat, yellow, 1, 32, 16, null, null, null, null, null, null, null, null, onOff, lightPosition);
+    drawSphere(mat, yellow, 1, 32, 16, null, null, null, null, null, null, null, null, onOff, lightPosition, null, null);
     if (trans != null) {
         mat4.translate(mat, mat, [-trans[0], -trans[1], -trans[2]]);
     }

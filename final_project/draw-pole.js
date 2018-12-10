@@ -1,4 +1,4 @@
-function drawPole( mat, trans, degx, degy, degz, x, y, z, scale  ){
+function drawPole( mat, trans, degx, degy, degz, x, y, z, scale , lightOn, pointLightPosition ){
 	if ( degx != null || degy != null || degz != null ){
 		if( x != null )
 		{
@@ -20,7 +20,7 @@ function drawPole( mat, trans, degx, degy, degz, x, y, z, scale  ){
 		mat4.translate( mat, mat, trans );
 	}
   drawCylinder( mat, grey, 1,1,32, 0, 0, null, degToRad(90), null, null, [1,0,0], null, null, [ 0.08, 0.08, 1.2],null, null, null );
-  drawSphere(mat, black, 0.3,32,16,[0,0,1],  degToRad(90), null, null, [1,0,0], null, null, [ 0.5,0.5,0.5]);
+  drawSphere(mat, yellow, 0.3,32,16,[0,0,1],  degToRad(90), null, null, [1,0,0], null, null, [ 0.5,0.5,0.5], null, null, lightOn, pointLightPosition);
 	if ( trans != null ){
 		mat4.translate( mat, mat, [ -trans[0], -trans[1], -trans[2]] );
 	}

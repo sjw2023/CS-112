@@ -103,6 +103,7 @@ var isPointLight = 0.;
 var pointLightPosition = vec3.create();
 
 var test = 0;
+var lightN = 0;
 
 
 function initGL() {
@@ -236,9 +237,11 @@ function update(object) {
     gl.uniform1f(u_isMoonDown, moonDown);
     //upload Spot Light
     gl.uniform3f(lightDirectionLocation, carLightDirection[0], carLightDirection[1], carLightDirection[2]);
-    gl.uniform4f(carLightPosition_loc, carLightPosition[0], carLightPosition[1], carLightPosition[2], 1.);
+    gl.uniform4f(leftLightPosition_loc, leftLightPosition[0], leftLightPosition[1], leftLightPosition[2], 1.);
+    gl.uniform4f(rightLightPosition_loc, rightLightPosition[0], rightLightPosition[1], rightLightPosition[2], 1.);
     ///Upload Point Light
-    gl.uniform4f(pointLightPosition_loc, pointLightPosition[0], pointLightPosition[1], pointLightPosition[2], 1.)
+    gl.uniform4f(pointLightPosition_loc, pointLightPosition[0], pointLightPosition[1], pointLightPosition[2], 1.);
+
 
     gl.uniformMatrix3fv(u_normalMatrix, false, normalMatrix);
     gl.uniformMatrix4fv(u_modelView, false, modelView);
@@ -292,11 +295,11 @@ function draw() {
         if (moonDown == 1.) {
             drawPole(modelView, null, degToRad(180), null, null, [1, 0, 0], null, null, null, 1., pointLightPosition);
             drawMoon(modelView, 0., u_lightPosition, lightposition, [-5, 5, -5], null, null, -moonDeg, null, null, [0, 0, 1], null);
-            drawCar(modelView, carPosition, [0.5, 0.5, 0.5], null, -moonDeg, null, null, [0, 1, 0], null, 1, -moonDeg, 1., carLightPosition, carLightDirection);
+            drawCar(modelView, carPosition, [0.5, 0.5, 0.5], null, -moonDeg, null, null, [0, 1, 0], null, 1, -moonDeg, 1., leftLightPosition,rightLightPosition, carLightDirection);
         } else {
             drawMoon(modelView, 1., u_lightPosition, lightposition, [-5, 5, -5], null, null, -moonDeg, null, null, [0, 0, 1], null);
             drawPole(modelView, null, degToRad(180), null, null, [1, 0, 0], null, null, null, 0., null);
-            drawCar(modelView, carPosition, [0.5, 0.5, 0.5], null, -moonDeg, null, null, [0, 1, 0], null, 1, -moonDeg, 0., carLightPosition, carLightDirection);
+            drawCar(modelView, carPosition, [0.5, 0.5, 0.5], null, -moonDeg, null, null, [0, 1, 0], null, 1, -moonDeg, 0., leftLightPosition,rightLightPosition, carLightDirection);
         }
         drawGround(modelView, [0, -0.4, 0], [2, 2, 2]);
         drawTree(modelView, [-1.5, 0.3, 2], degToRad(180), null, null, [1, 0, 0], null, null, null);

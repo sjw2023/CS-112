@@ -56,50 +56,6 @@
     vec4 coords ;
     vec4 eyeCoords ;
 
-    vec3 c_distance(vec3 color, float distance)
-    {
-        if(distance > 0. && distance < 0.5)
-        {
-            return vec3(vec3(1,1,1)*0.9);
-        }
-        else if(distance > 0.5 && distance <= 1.)
-        {
-            return vec3(vec3(0,1,1)*0.1);
-        }
-        else if(distance > 1. && distance <= 1.5)
-        {
-            return vec3(vec3(1,0,1)*0.2);
-        }
-        else if(distance > 1.5 && distance <= 2.)
-        {
-            return vec3(vec3(1,1,0)*0.3);
-        }
-        else if(distance > 2. && distance <= 2.5)
-        {
-            return vec3(vec3(1,0,0)*0.4);
-        }
-        else if(distance > 2.5 && distance <= 3.)
-        {
-            return vec3(vec3(0,1,0)*0.5);
-        }
-        else if(distance > 3. && distance <= 3.5)
-        {
-            return vec3(vec3(0,0,1)*0.6);
-        }
-        else if(distance > 3.5 && distance <= 4.)
-        {
-            return vec3(vec3(0,0,0)*0.7);
-        }
-        else if(distance > 4. && distance <= 4.5)
-        {
-            return vec3(color*0.8);
-        }
-        else
-        {
-            return vec3(color);
-        }
-
-    }
     void main() {
         vec3 N, L, R, V;// vectors for lighting equation
         vec3 Lr,Rr; // For calculating the right headlight
@@ -137,7 +93,7 @@
         v_Lr = Lr;
         v_Rr = Rr;
         v_color = vec4( color, 1. );
-        v_lDir = normalize( carLightDirection );
+        v_lDir = normalize( normalMatrix * carLightDirection );
         v_distance = length( lightPos.xyz - eyeCoords.xyz );
         v_isSunDown = isMoonDown;
         v_isPointLight = isPointLight;
@@ -212,27 +168,44 @@
         }
         return vec4((o_color) * attetuationLightWeighting+ ((diffuseColor.rgb) * diffuseLightWeighting *attetuationLightWeighting) + ((specularColor) * specularLightWeighting*attetuationLightWeighting), 1.0);
     }
-    // vec4 coloringWithHeadLight(in vec3 N, in vec3 L, in vec3 R, in vec3 V, in vec3 lDir){
+    // vec4 coloringWithHeadLight(in vec3 N, in vec3 L, in vec3 R, in vec3 V, in vec3 lDir, in vec3 color ){
+    //     vec3 o_color = color;
     //     float diffuseLightWeighting = max(dot(N, L), 0.0);
     //     float specularLightWeighting = pow(max(dot(R, V), 0.0), specularExponent);
     //     float angle = dot( -L, lDir);
-    //     if( angle > u_limit ){
-    //         gl_FragColor = vec4( ( vec3(v_color) + ((diffuseColor.rgb) * diffuseLightWeighting) + ((specularColor) * specularLightWeighting) + (vec3(1,1,1)*angle)), 1.0);
-    //     }
-    //     // else
-    //     // {
-    //     // gl_FragColor = vec4( ( vec3(v_color) + (vec3(1,1,1)*angle)), 1.0);
-    //     // gl_FragColor = vec4( v_distance*vec3(0,0,0), 1.);
-    //         // gl_FragColor = vec4( ( vec3(v_color) + ((diffuseColor.rgb) * diffuseLightWeighting) + ((specularColor) * specularLightWeighting) ), 1.0);
+    //     float attetuationLightWeighting;
+    //     // if( isPointLight == 1. ){
+    //     //     attetuationLightWeighting = 1.; //This set PointLight as emitted object
     //     // }
+    //     // if( isSun == 1. ){
+    //     //     attetuationLightWeighting = 1.;//This will color Sun with grey.
+    //     //     o_color = vec3(0.329412, 0.329412, 0.329412);
+    //     // }
+    //     attetuationLightWeighting = clamp( 1. / v_distance, 0.0, 1.0);
+    //     if( dot(N,L) > 0.0 )
+    //     {
+    //         if( angle < u_limit ){
+    //             attetuationLightWeighting = 1.;
+    //             return vec4(vec3(1,1,0) * attetuationLightWeighting+ ((diffuseColor.rgb) * diffuseLightWeighting *attetuationLightWeighting) + ((specularColor) * specularLightWeighting*attetuationLightWeighting), 1.0);
+    //         }
+    //         else{
+    //             attetuationLightWeighting = 0.2;
+    //             return vec4(vec3(0,1,0) * attetuationLightWeighting+ ((diffuseColor.rgb) * diffuseLightWeighting *attetuationLightWeighting) + ((specularColor) * specularLightWeighting*attetuationLightWeighting), 1.0);
+    //         }
+    //     }
+    //     else
+    //     {
+    //         attetuationLightWeighting = 0.1;
+    //         return vec4(vec3(1,0,1) * attetuationLightWeighting+ ((diffuseColor.rgb) * diffuseLightWeighting *attetuationLightWeighting) + ((specularColor) * specularLightWeighting*attetuationLightWeighting), 1.0);
+    //     }
     // }
     void main(){
         if( v_isSunDown == 0. ){
             coloringWithSun( v_N, v_L, v_R, v_V, isMoon, v_isPointLight, v_color.rgb);
         }
         else{
-            // coloringWithHeadLight(v_N, v_Ll, v_Rl, v_V, v_lDir); // Use left head light.
-            // coloringWithHeadLight(v_N, v_Ll, v_Rl, v_V, v_lDir); // Use right head light.
+            // gl_FragColor += coloringWithHeadLight(v_N, v_Ll, v_Rl, v_V, v_lDir,v_color.rgb); // Use left head light.
+            // gl_FragColor += coloringWithHeadLight(v_N, v_Lr, v_Rr, v_V, v_lDir); // Use right head light.
             gl_FragColor += coloringWithPointLight(v_N, v_L, v_R, v_V, v_isPointLight, isMoon, v_color.rgb );
         }
     }
